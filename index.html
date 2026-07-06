@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANDRÉ.</title>
+<meta name="description" content="André Duarte — music producer and audio engineer currently studying Music Production. Original recordings, mixes and studio work.">
+
+<!-- Favicon: "A." set in the same Instrument Sans Bold Italic as the ANDRÉ.
+     nav mark, on the site's --bg green-black, so the tab icon reads as the
+     same mark rather than a generic browser default. -->
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="assets/icons/favicon-48.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/favicon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/icons/favicon-180.png">
+
+<!-- Fonts: Inter (headings — closest free alternative to Aptos, which isn't available as a web font — + body) + Instrument Sans (nav mark / loader, unchanged) + Space Mono (utility / data / nav) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Inter:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Pearlescent background sheen (fixed, behind all content) -->
+<div class="bg-sheen" aria-hidden="true"></div>
+
+<!-- Grain overlay -->
+<div class="grain" aria-hidden="true"></div>
+
+<!-- Custom progress / meter (signature element) -->
+<div class="meter" aria-hidden="true">
+  <canvas id="meterCanvas" width="40" height="160"></canvas>
+</div>
+
+<!-- Loader -->
+<div class="loader" id="loader">
+  <div class="loader-word">ANDRÉ DUARTE</div> <!-- LOADING INICIAL -->
+  <div class="loader-bar"><span></span></div>
+</div>
+
+<!-- ================= NAV ================= -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#home" class="nav-mark">ANDRÉ.</a>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="#home" data-index="01">Home</a>
+      <a href="#about" data-index="02">About</a>
+      <a href="#projects" data-index="03">Projects</a>
+      <div class="nav-item has-submenu">
+        <a href="#concerts" data-index="04">Concerts</a>
+        <div class="nav-submenu">
+          <a href="#concert-plano-b">Plano B</a>
+          <a href="#concert-hard-club">HARD-ROCK</a>
+          <a href="#concert-canelas">Canelas</a>
+        </div>
+      </div>
+      <a href="#influences" data-index="05">Influences</a>
+      <a href="#gallery" data-index="06">Gallery</a>
+      <a href="#contact" data-index="07">Contact</a>
+    </nav>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+      <span class="nav-toggle-line"></span>
+      <span class="nav-toggle-line"></span>
+    </button>
+  </div>
+</header>
+
+<main>
+
+  <!-- ================= HOME ================= -->
+  <section class="hero" id="home">
+    <div class="hero-image" data-reveal>
+      <img src="assets/images/CAPA.png" alt="André Duarte — studio portrait">
+      <span class="hero-image-tag">01 — Studio, Porto</span>
+    </div>
+
+    <div class="hero-bg-word" aria-hidden="true"></div> <!--FUNDO ONDE DIZIA SOUND -->
+
+    <div class="hero-grid">
+      <p class="hero-eyebrow" data-reveal>Artist - Music Producer - Audio Engineer</p>
+
+      <h1 class="hero-title">
+        <span class="line" data-reveal-text>ANDRÉ.<span class="outline"></span></span>
+      </h1>
+
+      <p class="hero-copy" data-reveal>
+        Emerging artist, music producer and mixing engineer. This portfolio is an evolving
+        archive of my work — a place where recordings, productions and creative experiments
+        come together to document my journey through music, audio engineering and artistic
+        exploration.
+      </p>
+
+      <div class="hero-meta" data-reveal>
+        <span>Based in Porto,</span>
+        <span class="dot"></span>
+        <span></span> <!-- Est. 2024 -->
+      </div>
+    </div>
+
+    <a href="#about" class="scroll-cue" aria-label="Scroll to About">
+      <span class="scroll-line"></span>
+    </a>
+  </section>
+
+  <!-- ================= ABOUT ================= -->
+  <section class="about" id="about">
+    <div class="about-main">
+      <img class="about-bleed about-bleed-left" src="assets/images/hero-portrait.png" alt="André Duarte — portrait" data-reveal>
+      <img class="about-bleed about-bleed-accent" src="assets/images/BIOGRAPHY%201.png" alt="Childhood photo — early days with music" data-reveal>
+      <img class="about-bleed about-bleed-right" src="assets/images/about-studio.jpg" alt="Home studio setup" data-reveal>
+
+      <div class="section-label" data-reveal><span>02</span> About</div>
+      <h2 class="section-title" data-reveal-text>BIOGRAPHY<br></h2>
+
+      <div class="about-body">
+        <p class="about-bio" data-reveal>
+          I was born in <strong>2005</strong> in <strong>Vila Nova de Gaia</strong>, Portugal, where my passion for music began at
+          an early age. As a child, I studied classical guitar for around three years, an
+          experience that first introduced me to music and laid the foundations for the path I
+          would eventually follow.
+        </p>
+        <p class="about-bio" data-reveal>
+          Alongside music, I dedicated much of my youth to roller hockey, playing for <strong>Clube
+          Hóquei dos Carvalhos</strong> and later for <strong>Associação Desportiva Sanjoanense</strong> for approximately
+          eleven years. Although sport became a significant part of my life, my passion for music
+          never disappeared—it simply waited for the right moment to become my main focus.
+        </p>
+        <p class="about-bio" data-reveal>
+          That moment came when I entered higher education. I initially enrolled in Licenciatura
+          em <strong>Engenharia Eletrotécnica e de Computadores</strong> at the Instituto Superior de Engenharia do
+          Porto (<strong>ISEP</strong>). After later transferring to Licenciatura em <strong>Engenharia Informática</strong>, I
+          realised that my true ambition was elsewhere. Rather than continuing down an
+          engineering path, I decided to fully dedicate myself to music.
+        </p>
+        <p class="about-bio" data-reveal>
+          Today, I am studying Produção e Tecnologias da Música at the Escola Superior de Música
+          e Artes do Espetáculo (<strong>ESMAE</strong>), where I continue to develop both my technical knowledge
+          and creative approach to music.
+        </p>
+        <p class="about-bio" data-reveal>
+          My main interests lie in <strong>music production, recording, mixing and audio engineering</strong>. I
+          enjoy every stage of the creative process—from capturing performances to shaping the
+          final sound—but I also enjoy writing music for myself as a way of experimenting,
+          learning and developing my own artistic identity.
+        </p>
+      </div>
+    </div>
+
+    <div class="about-studio-strip" data-reveal>
+      <img src="assets/images/HOME%20STUDIO.png" alt="Home studio desk setup">
+    </div>
+  </section>
+
+  <!-- ================= PROJECTS ================= -->
+  <section class="projects" id="projects">
+    <div class="section-label" data-reveal><span>03</span> Projects</div>
+    <h2 class="section-title" data-reveal-text>PROJETCS<br>
+
+    <div class="tracks-showcase">
+      <div class="tracks-showcase-head">
+        <div class="section-label small"><span>—</span> Production</div>
+        <a href="https://drive.google.com/drive/folders/1RkK0lvasxlL0AUQXq53PH8BLhwvenfJw?usp=drive_link" target="_blank" rel="noopener" class="drive-link" aria-label="Open original Productions WAV files on Google Drive">
+          <span class="drive-link-icon" aria-hidden="true" style="background-image:url('assets/icons/folder.svg')"></span>
+          <span class="drive-link-text">Original WAV Files <span class="ar"></span></span>
+        </a>
+      </div>
+      <div class="tracks-viewport">
+        <button class="tracks-arrow tracks-arrow-prev" aria-label="Scroll tracks left"><span class="ar-right"></span></button>
+        <div class="tracks-scroll" id="tracksScrollProduction"><!-- injected by script.js from the PRODUCTION_TRACKS array --></div>
+        <button class="tracks-arrow tracks-arrow-next" aria-label="Scroll tracks right"><span class="ar-right"></span></button>
+      </div>
+      <div class="tracks-progress-track" id="tracksProgressTrackProduction" aria-hidden="true">
+        <div class="tracks-progress-thumb" id="tracksProgressThumbProduction"></div>
+      </div>
+    </div>
+
+    <div class="tracks-showcase">
+      <div class="tracks-showcase-head">
+        <div class="section-label small"><span>—</span> Mixes</div>
+        <a href="https://drive.google.com/drive/folders/1DIedE24ibuexPU3y3Wc1qmr1tvx5vnRG?usp=drive_link" target="_blank" rel="noopener" class="drive-link" aria-label="Open original Mixes WAV files on Google Drive">
+          <span class="drive-link-icon" aria-hidden="true" style="background-image:url('assets/icons/folder.svg')"></span>
+          <span class="drive-link-text">Original WAV Files <span class="ar"></span></span>
+        </a>
+      </div>
+      <div class="tracks-viewport">
+        <button class="tracks-arrow tracks-arrow-prev" aria-label="Scroll tracks left"><span class="ar-right"></span></button>
+        <div class="tracks-scroll" id="tracksScrollMixes"><!-- injected by script.js from the MIXES_TRACKS array --></div>
+        <button class="tracks-arrow tracks-arrow-next" aria-label="Scroll tracks right"><span class="ar-right"></span></button>
+      </div>
+      <div class="tracks-progress-track" id="tracksProgressTrackMixes" aria-hidden="true">
+        <div class="tracks-progress-thumb" id="tracksProgressThumbMixes"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CONCERTS ================= -->
+  <section class="concerts" id="concerts">
+    <nav class="concerts-sidenav" id="concertsSidenav" aria-label="Concerts quick navigation">
+      <a href="#concert-plano-b"><span>Plano B</span></a>
+      <a href="#concert-hard-club"><span>Hard-Rock</span></a>
+      <a href="#concert-canelas"><span>Canelas</span></a>
+    </nav>
+
+    <div class="section-label" data-reveal><span>04</span> Concerts</div>
+
+    <div class="concerts-top">
+      <h2 class="section-title" data-reveal-text>CONCERTS<br>&amp; MORE CONCERTS</h2>
+    </div>
+
+    <div class="concert-list">
+
+      <article class="concert-row" id="concert-plano-b">
+        <div class="concert-media">
+          <img src="assets/images/concert-01.jpg?v=2" alt="Concert photo placeholder 01 — replace with your own live photo">
+          <img src="assets/images/concert-01-2.jpg?v=2" alt="PLANO B — additional live photo 2">
+        </div>
+        <div class="concert-info">
+          <div class="concert-meta">
+            <span class="concert-venue">Venue name</span>
+            <span class="dot">•</span>
+            <span class="concert-date">00 Month 2025</span>
+          </div>
+          <h3 class="concert-title">PLANO B</h3>
+          <p class="concert-desc">Short description of the performance — replace with a few lines about the night, the setlist, or the setting.</p>
+        </div>
+      </article>
+
+      <article class="concert-row reverse" id="concert-hard-club">
+        <div class="concert-media">
+          <img src="assets/images/concert-02-2.jpg?v=2" alt="HARD - ROCK — additional live photo 2">
+          <img src="assets/images/concert-02.jpg?v=2" alt="Concert photo placeholder 02 — replace with your own live photo">
+        </div>
+        <div class="concert-info">
+          <div class="concert-meta">
+            <span class="concert-venue">Venue name</span>
+            <span class="dot">•</span>
+            <span class="concert-date">00 Month 2025</span>
+          </div>
+          <h3 class="concert-title">HARD - ROCK</h3>
+          <p class="concert-desc">Short description of the performance — replace with a few lines about the night, the setlist, or the setting.</p>
+        </div>
+      </article>
+
+      <article class="concert-row" id="concert-canelas">
+        <div class="concert-media">
+          <img src="assets/images/concert-03-2.jpg?v=2" alt="CANELAS — additional live photo 2">
+          <img src="assets/images/concert-03.jpg?v=2" alt="Concert photo placeholder 03 — replace with your own live photo">
+        </div>
+        <div class="concert-info">
+          <div class="concert-meta">
+            <span class="concert-venue">Venue name</span>
+            <span class="dot">•</span>
+            <span class="concert-date">00 Month 2025</span>
+          </div>
+          <h3 class="concert-title">CANELAS</h3>
+          <p class="concert-desc">Short description of the performance — replace with a few lines about the night, the setlist, or the setting.</p>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ================= INFLUENCES ================= -->
+  <section class="influences" id="influences">
+    <div class="section-label" data-reveal><span>05</span> Influences</div>
+    <h2 class="section-title" data-reveal-text><br>INFLUENCES</h2>
+
+    <div class="influence-viewport">
+      <button class="influence-arrow influence-arrow-prev" aria-label="Scroll influences left"><span class="ar-right"></span></button>
+      <div class="influence-scroll" id="influenceScroll"><!-- injected by script.js from the INFLUENCES array --></div>
+      <button class="influence-arrow influence-arrow-next" aria-label="Scroll influences right"><span class="ar-right"></span></button>
+    </div>
+  </section>
+
+  <!-- ================= GALLERY ================= -->
+  <section class="gallery" id="gallery">
+    <div class="gallery-side">
+      <div class="gallery-side-inner">
+        <div class="section-label" data-reveal><span>06</span> Gallery</div>
+        <h2 class="section-title" data-reveal-text aria-label="Gallery"><span class="gallery-letter" aria-hidden="true">G</span><span class="gallery-letter" aria-hidden="true">A</span><span class="gallery-letter" aria-hidden="true">L</span><span class="gallery-letter" aria-hidden="true">L</span><span class="gallery-letter" aria-hidden="true">E</span><span class="gallery-letter" aria-hidden="true">R</span><span class="gallery-letter" aria-hidden="true">Y</span></h2>
+      </div>
+    </div>
+    <div class="gallery-grid" id="galleryGrid"><!-- injected by script.js from GALLERY_ITEMS --></div>
+  </section>
+
+  <!-- ================= CONTACT ================= -->
+  <section class="contact" id="contact">
+    <div class="contact-bg-word" aria-hidden="true"></div> <!-- TALK no fundo -->
+
+    <div class="section-label" data-reveal><span>07</span> Contact</div>
+    <h2 class="section-title" data-reveal-text>Let's make<br>something.</h2>
+
+    <div class="contact-grid">
+      <div class="contact-links" data-reveal>
+        <a href="https://www.instagram.com/andrenevesduarte/" target="_blank" rel="noopener" class="contact-link">
+          <span class="contact-link-icon" aria-hidden="true" style="background-image:url('assets/icons/instagram.svg')"></span>
+          <span class="contact-link-text">Instagram <span class="ar"></span></span>
+        </a>
+        <a href="mailto:andreduarte427@gmail.com" class="contact-link" title="andreduarte427@gmail.com">
+          <span class="contact-link-icon" aria-hidden="true" style="background-image:url('assets/icons/mail.svg')"></span>
+          <span class="contact-link-text">Email <span class="ar"></span></span>
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-row">
+      <span>© <span id="year"></span> André Duarte</span>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= PROJECT OVERLAY ================= -->
+<div class="project-overlay" id="projectOverlay">
+  <div class="overlay-scroll">
+    <button class="overlay-close" id="overlayClose" aria-label="Close project"></button>
+    <div class="overlay-inner" id="overlayInner"><!-- injected by script.js --></div>
+  </div>
+</div>
+
+<!-- ================= LIGHTBOX ================= -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close image"></button>
+  <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous"><span class="ar-right"></span></button>
+  <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next"><span class="ar-right"></span></button>
+  <img id="lightboxImg" src="" alt="">
+  <video id="lightboxVideo" playsinline></video>
+  <p class="lightbox-caption" id="lightboxCaption"></p>
+</div>
+
+<!-- ================= MINI AUDIO PLAYER ================= -->
+<div class="mini-player" id="miniPlayer">
+  <div class="mini-player-inner">
+    <div class="mini-player-cover"><img id="miniPlayerCover" src="" alt=""></div>
+    <div class="mini-player-info">
+      <span class="mini-player-title" id="miniPlayerTitle"><span class="mini-player-title-track" id="miniPlayerTitleTrack"></span></span>
+      <div class="mini-player-progress" id="miniPlayerProgress">
+        <div class="mini-player-progress-fill" id="miniPlayerProgressFill"></div>
+        <div class="mini-player-progress-thumb" id="miniPlayerProgressThumb"></div>
+      </div>
+    </div>
+    <span class="mini-player-time" id="miniPlayerTime">0:00 / 0:00</span>
+    <div class="mini-player-volume" id="miniPlayerVolume">
+      <button class="mini-player-volume-toggle" id="miniPlayerVolumeToggle" aria-label="Volume">
+        <span class="volume-icon"></span>
+      </button>
+      <div class="mini-player-volume-popup">
+        <input type="range" class="mini-player-volume-range" id="miniPlayerVolumeRange" min="0" max="100" value="100" aria-label="Volume">
+      </div>
+    </div>
+    <button class="mini-player-toggle" id="miniPlayerToggle" aria-label="Pause">
+      <span class="track-play-icon"></span>
+    </button>
+    <button class="mini-player-close" id="miniPlayerClose" aria-label="Close player"></button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

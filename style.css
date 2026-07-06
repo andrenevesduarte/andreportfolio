@@ -1,0 +1,1414 @@
+/* ==========================================================================
+   MERIDIAN — Portfolio stylesheet
+   Design tokens
+   -------------------------------------------------------------------------
+   Color   #0E1512 deep green-black bg / #EEF2EF ink-light text / #FFFFFF accent
+           #9AA39D mid grey (secondary text) / #1B2822 card surface
+           rgba(238,242,238,.12) hairline
+           The hero, nav, lightbox and mini-player use their own frozen
+           "chrome" palette (--dark-text / --dark-line / --dark-accent) —
+           it happens to read almost the same as the general palette now
+           that the whole site runs dark again, but the two stay separate
+           since the frozen one is tuned for contrast over photos/scrims,
+           not over the flat --bg.
+   Type    Instrument Sans (bold, italic) — display / oversized headlines
+           Inter — headings + body copy (closest free stand-in for Aptos,
+           which isn't distributed as a web font)
+           Space Mono — captions, numbers, utility / data
+   Layout  12-col editorial grid, asymmetric rows, oversized bg words
+   Signature: a live "meter" (VU / oscilloscope bars) fixed at the edge of
+   the viewport — a literal audio-engineering instrument, not a decoration.
+   ========================================================================== */
+
+:root{
+  --bg:#0e1512;
+  --bg-alt:#141f1a;
+  --bg-alt-2:#111a16;
+  --surface:#1b2822;
+  --white:#eef2ef;
+  --pure:#ffffff;
+  --grey-1:#9aa39d;
+  --grey-2:#6b7570;
+  --line: rgba(238,242,238,.12);
+  --line-strong: rgba(238,242,238,.22);
+
+  /* Frozen "dark chrome" tokens — used only by components that stay dark
+     on purpose (nav bar, hero overlay, lightbox, mini player, image-caption
+     chips) so they don't lose contrast now that the general page is light. */
+  --dark-text:#f5f3f0;
+  --dark-text-muted:#a8a6ad;
+  --dark-line: rgba(245,243,240,.28);
+  --dark-accent:#ffffff;
+  --dark-surface-hover:#232028;
+
+  --font-display:'Instrument Sans', 'Helvetica Neue', Arial, sans-serif;
+  --font-heading:'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --font-body:'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono:'Space Mono', 'Courier New', monospace;
+
+  --ease: cubic-bezier(.16,.8,.24,1);
+  --ease-soft: cubic-bezier(.22,.61,.36,1);
+
+  --max: 1400px;
+  --gutter: clamp(20px, 4vw, 64px);
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+html{ scroll-behavior:smooth; }
+
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior:auto; }
+  *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
+}
+
+body{
+  background:var(--bg);
+  color:var(--white);
+  font-family:var(--font-body);
+  font-weight:300;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  cursor:default;
+}
+
+a{ color:inherit; text-decoration:none; }
+img{ max-width:100%; display:block; }
+ul, ol{ list-style:none; }
+button{ font-family:inherit; background:none; border:none; color:inherit; cursor:pointer; }
+input, textarea{ font-family:inherit; }
+
+::selection{ background:var(--pure); color:var(--bg); }
+
+/* focus visibility */
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible{
+  outline: 1px solid var(--pure);
+  outline-offset: 4px;
+}
+/* keep the focus ring visible on the components frozen to the dark palette */
+.nav a:focus-visible, .nav button:focus-visible,
+.hero a:focus-visible, .hero button:focus-visible,
+.lightbox a:focus-visible, .lightbox button:focus-visible,
+.mini-player a:focus-visible, .mini-player button:focus-visible{
+  outline-color: var(--dark-accent);
+}
+
+/* ---------- pearlescent background sheen (deep green + warm amber glow, slow drift) ---------- */
+.bg-sheen{
+  position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 60% at 18% 15%, rgba(60,150,120,.10), transparent 60%),
+    radial-gradient(ellipse 70% 55% at 82% 65%, rgba(190,150,80,.07), transparent 62%),
+    radial-gradient(ellipse 65% 70% at 48% 105%, rgba(40,110,90,.08), transparent 68%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-alt-2) 100%);
+  background-size: 220% 220%, 220% 220%, 220% 220%, 100% 100%;
+  background-position: 0% 0%, 100% 100%, 45% 100%, 0 0;
+  transform: translateY(calc(var(--scroll-y, 0) * -30px)) rotate(calc(var(--scroll-y, 0) * .9deg));
+  transition: transform 1.4s var(--ease-soft);
+  animation: sheenDrift 100s ease-in-out infinite alternate;
+  will-change: background-position, transform;
+}
+@keyframes sheenDrift{
+  0%{ background-position: 0% 0%, 100% 100%, 40% 100%, 0 0; }
+  50%{ background-position: 26% 18%, 72% 78%, 58% 92%, 0 0; }
+  100%{ background-position: 8% 28%, 90% 58%, 50% 100%, 0 0; }
+}
+
+/* ---------- grain texture overlay ---------- */
+.grain{
+  position:fixed; inset:0; z-index:999; pointer-events:none;
+  opacity:.05; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size:180px;
+}
+
+/* ==========================================================================
+   Loader
+   ========================================================================== */
+.loader{
+  position:fixed; inset:0; z-index:1000;
+  background:var(--bg);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:22px;
+  transition: opacity .8s var(--ease), visibility .8s;
+}
+.loader.hide{ opacity:0; visibility:hidden; }
+.loader-word{
+  font-family:var(--font-display); font-weight:700; font-style:italic;
+  font-size:clamp(28px,5vw,44px); letter-spacing:.02em;
+}
+.loader-bar{ width:200px; height:1px; background:var(--line-strong); position:relative; overflow:hidden; }
+.loader-bar span{ position:absolute; inset:0; background:var(--pure); transform:scaleX(0); transform-origin:left; animation: loadbar 1.4s var(--ease) forwards; }
+@keyframes loadbar{ to{ transform:scaleX(1); } }
+
+/* ==========================================================================
+   Signature element — live meter, fixed to viewport edge
+   ========================================================================== */
+.meter{
+  position:fixed;
+  right: clamp(10px, 2vw, 26px);
+  top:50%; transform:translateY(-50%);
+  z-index:60;
+  opacity:.55;
+  pointer-events:none;
+  display:none;
+  transition: opacity .3s var(--ease), filter .3s var(--ease);
+}
+.meter.is-playing{
+  opacity:1;
+  filter: drop-shadow(0 0 6px rgba(255,255,255,.55));
+}
+@media (min-width: 880px){ .meter{ display:block; } }
+
+/* ==========================================================================
+   Nav
+   ========================================================================== */
+/* Nav stays a self-contained dark glass bar regardless of the page theme
+   beneath it (matches the dark hero backdrop it sits on at rest), so its
+   text/icon colors are frozen to --dark-text rather than the flippable
+   --white/--pure tokens. */
+.nav{
+  position:fixed; top:0; left:0; right:0; z-index:80;
+  padding: 22px 0;
+  background: linear-gradient(to bottom, rgba(10,10,10,.85) 0%, rgba(10,10,10,0) 100%);
+  color:var(--dark-text);
+}
+.nav-inner{
+  max-width:var(--max); margin:0 auto; padding:0 var(--gutter);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.nav-mark{
+  font-family:var(--font-display); font-weight:700; font-style:italic;
+  font-size:20px; letter-spacing:.02em;
+}
+.nav-links{ display:flex; gap:clamp(18px,2.4vw,40px); }
+.nav-links a{
+  position:relative;
+  font-family:var(--font-mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+  padding-bottom:2px;
+  display:inline-flex; align-items:center; gap:6px;
+}
+.nav-links a::before{
+  content:attr(data-index); color:var(--dark-text-muted); font-size:10px;
+}
+.nav-links a::after{
+  content:''; position:absolute; left:0; right:100%; bottom:-3px; height:1px; background:var(--dark-accent);
+  transition: right .4s var(--ease);
+}
+.nav-links a:hover::after, .nav-links a.active::after{ right:0; }
+
+/* Submenu — appears under "04 Concerts" on hover, same visual language as
+   the main nav links (mono type, underline-on-hover) but without the
+   data-index numbering. Absolutely positioned so it doesn't affect the
+   nav-links flex layout/spacing at all. */
+.nav-links .has-submenu{ position:relative; }
+.nav-submenu{
+  position:absolute; top:100%; left:0; padding-top:16px;
+  display:flex; flex-direction:column; gap:12px;
+  opacity:0; visibility:hidden; transform:translateY(-6px);
+  transition: opacity .3s var(--ease), transform .3s var(--ease), visibility .3s;
+  pointer-events:none;
+}
+.nav-links .has-submenu:hover .nav-submenu,
+.nav-links .has-submenu:focus-within .nav-submenu{
+  opacity:1; visibility:visible; transform:translateY(0); pointer-events:auto;
+}
+.nav-submenu a{ white-space:nowrap; color:var(--dark-text-muted); }
+.nav-submenu a::before{ content:none; }
+.nav-submenu a:hover{ color:var(--dark-text); }
+
+.nav-toggle{ display:none; flex-direction:column; gap:6px; width:26px; }
+.nav-toggle-line{ height:1px; width:100%; background:var(--dark-text); transition: transform .3s var(--ease), opacity .3s; }
+
+@media (max-width: 880px){
+  .nav-links{
+    position:fixed; inset:0; z-index:70;
+    background:var(--bg);
+    flex-direction:column; align-items:flex-start; justify-content:center;
+    gap:26px; padding: var(--gutter);
+    transform:translateY(-100%);
+    transition: transform .5s var(--ease);
+    mix-blend-mode:normal;
+  }
+  .nav-links.open{ transform:translateY(0); }
+  .nav-links a{ font-size:26px; font-family:var(--font-display); font-weight:700; font-style:italic; text-transform:none; letter-spacing:0; }
+  .nav-links a::before{ font-family:var(--font-mono); font-size:13px; margin-right:10px; }
+  .nav-toggle{ display:flex; z-index:75; }
+  .nav-toggle.open .nav-toggle-line:first-child{ transform:translateY(3.5px) rotate(45deg); }
+  .nav-toggle.open .nav-toggle-line:last-child{ transform:translateY(-3.5px) rotate(-45deg); }
+
+  /* Hover doesn't exist on touch, so the submenu is shown inline (nested,
+     indented) under "Concerts" instead of being hover-gated. */
+  .nav-submenu{
+    position:static; opacity:1; visibility:visible; transform:none; pointer-events:auto;
+    padding:14px 0 0 18px; gap:16px;
+  }
+  .nav-submenu a{ font-size:15px; font-family:var(--font-mono); font-weight:400; font-style:normal; }
+}
+
+/* ==========================================================================
+   Reveal utility (JS toggles .is-visible)
+   ========================================================================== */
+[data-reveal], [data-reveal-text]{
+  opacity:0; transform:translateY(28px);
+  transition: opacity 1s var(--ease-soft), transform 1s var(--ease-soft);
+}
+[data-reveal].is-visible, [data-reveal-text].is-visible{
+  opacity:1; transform:translateY(0);
+}
+
+/* ==========================================================================
+   Section shells
+   ========================================================================== */
+main > section{
+  position:relative;
+  isolation:isolate;
+  max-width:var(--max);
+  margin:0 auto;
+  padding: 0 var(--gutter);
+}
+
+.section-label{
+  display:flex; align-items:center; gap:10px;
+  font-family:var(--font-mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--grey-1);
+  padding-top: clamp(90px, 12vw, 140px);
+  margin-bottom: clamp(30px, 5vw, 56px);
+}
+.section-label span{ color:var(--white); }
+.section-label.small{ padding-top:0; margin-bottom:22px; font-size:11px; }
+
+.section-title{
+  font-family:var(--font-heading); font-weight:800; font-style:normal;
+  font-variation-settings:'wdth' 82, 'opsz' 96;
+  font-size:clamp(36px, 6.2vw, 84px);
+  line-height:.97; letter-spacing:-.005em;
+  margin-bottom: clamp(40px, 6vw, 90px);
+}
+
+/* Alternating section-title alignment down the page */
+.about .section-title{ text-align:left; }
+.projects .section-title{ text-align:right; }
+.concerts .section-title{ text-align:left; }
+.influences .section-title{ text-align:right; }
+.gallery .section-title{ text-align:right; }
+.contact .section-title{ text-align:left; }
+
+/* ==========================================================================
+   HERO — full-bleed cover photo with a dark scrim. Its text/lines are
+   frozen to the --dark-text tokens (not the general --white/--pure) so
+   they keep contrast over the photo regardless of what the general page
+   theme happens to be.
+   ========================================================================== */
+.hero{
+  position:relative;
+  min-height:100vh; min-height:100svh;
+  height:100vh; height:100svh;
+  max-width:none; width:100%; padding-left:0; padding-right:0;
+  display:flex; flex-direction:column; justify-content:center;
+  padding-top: 120px; padding-bottom:80px;
+  overflow:hidden;
+  color:var(--dark-text);
+}
+.hero-image{
+  position:absolute; inset:0;
+  z-index:0;
+  overflow:hidden;
+  margin-top:0;
+}
+.hero-image::after{
+  content:'';
+  position:absolute; inset:0;
+  background:
+    linear-gradient(180deg, rgba(8,6,14,.62) 0%, rgba(8,6,14,.32) 38%, rgba(8,6,14,.5) 72%, rgba(8,6,14,.8) 100%);
+  z-index:1;
+}
+.hero-image img{ width:100%; height:100%; object-fit:cover; object-position:78% 25%; filter:grayscale(1) contrast(1.05); transition: transform 1.2s var(--ease), filter .45s var(--ease-soft); }
+.hero-image:hover img{ transform:scale(1.04); }
+.hero-image.in-focus img{ filter:grayscale(0) contrast(1.05); }
+.hero-image-tag{
+  position:absolute; right:14px; bottom:14px; z-index:2;
+  font-family:var(--font-mono); font-size:10px; letter-spacing:.05em;
+  background:rgba(10,10,10,.55); padding:5px 9px; backdrop-filter: blur(2px);
+  color:var(--dark-text);
+}
+.hero-bg-word{
+  position:absolute; top:8%; left:50%; transform:translateX(-50%);
+  font-family:var(--font-display); font-weight:700;
+  font-size: clamp(90px, 22vw, 360px);
+  color:var(--dark-text); opacity:.08;
+  letter-spacing:-.02em;
+  white-space:nowrap;
+  pointer-events:none;
+  z-index:1;
+  user-select:none;
+}
+.hero-grid{
+  position:relative; z-index:2;
+  max-width:var(--max); margin:0 auto; width:100%;
+  padding:0 var(--gutter);
+  display:grid;
+  grid-template-columns: repeat(12, 1fr);
+  column-gap: var(--gutter);
+  row-gap: 18px;
+  align-items:end;
+}
+.hero-eyebrow{
+  grid-column: 1 / 7;
+  font-family:var(--font-mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--dark-text-muted);
+}
+.hero-title{
+  grid-column: 1 / 13;
+  font-family:var(--font-heading); font-weight:800; font-style:normal;
+  font-variation-settings:'wdth' 82, 'opsz' 96;
+  font-size: clamp(56px, 11.5vw, 176px);
+  line-height:.9; letter-spacing:-.01em;
+  color:var(--dark-text);
+}
+.hero-title .outline{
+  -webkit-text-stroke: 1.5px var(--dark-accent);
+  color:transparent;
+}
+.hero-copy{
+  grid-column: 1 / 6;
+  font-size:15px; color:var(--dark-text-muted); font-weight:300; line-height:1.7;
+  margin-top: 4px;
+  text-align: justify;
+}
+.hero-meta{
+  grid-column: 1 / 8;
+  font-family:var(--font-mono); font-size:11px; letter-spacing:.05em; color:var(--dark-text-muted);
+  display:flex; gap:10px; margin-top:20px;
+}
+.hero-meta .dot{ color:var(--dark-line); }
+
+.scroll-cue{
+  position:absolute; left:var(--gutter); bottom:34px; z-index:2;
+  display:flex; align-items:center; gap:10px;
+  font-family:var(--font-mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--dark-text-muted);
+}
+.scroll-line{ width:1px; height:34px; background:var(--dark-line); overflow:hidden; position:relative; }
+.scroll-line::after{
+  content:''; position:absolute; top:-100%; left:0; right:0; height:100%; background:var(--dark-accent);
+  animation: scrollcue 2.2s var(--ease) infinite;
+}
+@keyframes scrollcue{ 50%{ top:0; } 100%{ top:100%; } }
+
+@media (max-width: 880px){
+  .hero-eyebrow{ grid-column:1/13; }
+  .hero-title{ grid-column:1/13; }
+  .hero-copy{ grid-column:1/13; }
+  .hero-meta{ grid-column:1/13; }
+}
+
+/* ==========================================================================
+   ABOUT
+   ========================================================================== */
+.about::before{
+  content:''; position:absolute; top:0; left:50%; width:100vw; height:100%;
+  transform:translateX(-50%); background:var(--bg-alt); z-index:-1;
+}
+/* Tighter than the shared .section-label / .section-title defaults so
+   BIOGRAPHY and its body copy sit higher on the page. No scroll-margin-top
+   here (unlike .concert-row) — the fixed nav is a transparent overlay, so
+   jumping here via the nav anchor should land flush with the viewport top
+   like every other section, not leave a gap revealing whatever precedes it. */
+/* Floor raised to clear the fixed nav's own height (~74px) — at the old
+   22px minimum this sat close enough to overlap "ANDRÉ." the moment the
+   section lands flush at the viewport top; still clearly tighter than the
+   shared default (clamp(90px,12vw,140px)) used by every other section. */
+.about .section-label{ padding-top: clamp(72px, 8vw, 96px); }
+
+/* ---- Editorial photo bleed behind the heading + bio text --------------
+   Two of the section's existing photos (plus the small childhood one
+   stacked under the left one) run the full height of this text block and
+   bleed off the true left/right viewport edges — no frame, no card, no
+   crop-box border. Each fades to nothing well before it reaches the copy
+   (mask-image gradient dissolving into the section's own backdrop colour)
+   so they read as part of the page's fabric rather than photos sitting in
+   boxes, while the text keeps generous, untouched negative space. Photos
+   are position:absolute + z-index:0 inside .about-main (position:relative,
+   height:auto — driven entirely by the normal-flow label/title/body);
+   the text elements get position:relative + z-index:1 so they always
+   paint above the photo layer regardless of DOM order. */
+.about-main{ position:relative; }
+.about-main > .section-label,
+.about-main > .section-title,
+.about-main > .about-body{ position:relative; z-index:1; }
+
+.about-bleed{
+  position:absolute;
+  width: clamp(220px, 25vw, 400px);
+  object-fit:cover; object-position:center;
+  filter: grayscale(1) brightness(.48);
+  transition: filter .6s var(--ease-soft);
+  z-index:0;
+  pointer-events:none;
+  user-select:none;
+}
+.about-bleed.in-focus{ filter: grayscale(0) brightness(.68); }
+
+.about-bleed-left, .about-bleed-accent{
+  left:50%;
+  -webkit-mask-image: linear-gradient(to right, black 35%, transparent 88%);
+  mask-image: linear-gradient(to right, black 35%, transparent 88%);
+}
+.about-bleed-left{ top:0; height:58%; }
+.about-bleed-accent{ bottom:0; height:calc(42% - 14px); }
+.about-bleed-right{
+  right:50%; top:0; height:100%;
+  -webkit-mask-image: linear-gradient(to left, black 35%, transparent 88%);
+  mask-image: linear-gradient(to left, black 35%, transparent 88%);
+}
+/* The shared [data-reveal] rule (style.css, reveal utility) also sets
+   `transform`, for its own fade-up slide — which would fight with the
+   translateX bleed offset above (same property, and depending on
+   .is-visible, similar specificity) the moment each photo reveals. Pinning
+   the offset here with [data-reveal]/.is-visible in the selector itself
+   guarantees this always wins, in both states, regardless of stylesheet
+   order — so these photos simply fade in in place instead of sliding. */
+.about-bleed-left[data-reveal], .about-bleed-accent[data-reveal],
+.about-bleed-left[data-reveal].is-visible, .about-bleed-accent[data-reveal].is-visible{
+  transform: translateX(-50vw);
+}
+.about-bleed-right[data-reveal], .about-bleed-right[data-reveal].is-visible{
+  transform: translateX(50vw);
+}
+
+.about-body{
+  columns: 2; column-gap: var(--gutter);
+  padding-bottom: clamp(40px,5vw,70px);
+  border-bottom:1px solid var(--line);
+  margin-bottom: clamp(50px,6vw,90px);
+}
+.about-bio{
+  font-size:16px; color:var(--grey-1); line-height:1.85; font-weight:300;
+  margin-bottom:1.4em; break-inside:avoid;
+  text-align: justify;
+}
+.about-bio:last-child{ margin-bottom:0; }
+.about-bio strong{ color:var(--white); font-weight:500; }
+
+/* Same editorial "aesthetic" treatment as the .about-bleed photos above —
+   frameless, fading to nothing at the edges instead of a hard border, and
+   the same resting/in-focus grayscale+brightness pairing — rather than the
+   boxed strip-with-caption look this used to have. Position/size in the
+   page flow (full-width banner, same margin) is untouched. */
+.about-studio-strip{
+  position:relative; margin-bottom: clamp(70px,9vw,130px);
+  aspect-ratio: 16/6.2; overflow:hidden;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%);
+}
+.about-studio-strip img{ width:100%; height:100%; object-fit:cover; object-position:center 40%; filter:grayscale(1) brightness(.48); transition: filter .6s var(--ease-soft); }
+.about-studio-strip.in-focus img{ filter:grayscale(0) brightness(.68); }
+
+/* Not enough width to keep the bled photos clear of the (now full-width)
+   text column without hurting legibility — hide them below this point
+   and let the section fall back to its plain dark backdrop. */
+@media (max-width: 1000px){
+  .about-bleed{ display:none; }
+}
+
+@media (max-width: 880px){
+  .about-body{ columns:1; }
+}
+
+/* ==========================================================================
+   PROJECTS
+   ========================================================================== */
+/* Negative offset (not the usual positive scroll-margin-top used elsewhere)
+   because this section's content — label + title + both Production/Mixes
+   carousels — is taller than most viewports, pushing Mixes (and its
+   horizontal scrollbar) below the fold when landing at the section's
+   literal top. Trims the .section-label's nav-clearance padding well
+   below its full default clamp(90,12vw,140) so Mixes' scrollbar clears
+   the viewport bottom too. */
+.projects{ scroll-margin-top: calc(clamp(40px, 5vw, 60px) - clamp(90px, 12vw, 140px)); }
+/* Trims the space below the "03 PROJECTS" label only (not its own
+   top position) so the title/Production/Mixes below it shift up slightly
+   without moving the label itself. */
+.projects .section-label{ margin-bottom: calc(clamp(30px, 5vw, 56px) - 24px); }
+
+.project-list{ padding-bottom: clamp(70px,9vw,130px); }
+
+.project-row{
+  display:grid; grid-template-columns: 1.5fr 1fr; gap: var(--gutter);
+  align-items:center;
+  padding: clamp(40px,6vw,70px) 0;
+  border-top:1px solid var(--line);
+}
+.project-row:last-child{ border-bottom:1px solid var(--line); }
+.project-row.reverse{ direction:rtl; }
+.project-row.reverse > *{ direction:ltr; }
+
+.project-media{ aspect-ratio: 16/10.3; overflow:hidden; position:relative; border:1px solid var(--line-strong); }
+.project-media img{ width:100%; height:100%; object-fit:cover; filter:grayscale(1); transition: transform .8s var(--ease), filter .45s var(--ease-soft); }
+.project-row:hover .project-media img{ transform:scale(1.035); }
+.project-media.in-focus img{ filter:grayscale(0); }
+
+.project-year{ font-family:var(--font-mono); font-size:12px; color:var(--grey-1); }
+.project-title{
+  font-family:var(--font-heading); font-weight:800; font-style:normal;
+  font-variation-settings:'wdth' 82, 'opsz' 72;
+  font-size:clamp(30px,4vw,51px); line-height:.99; letter-spacing:-.005em; margin:10px 0 16px;
+}
+.project-desc{ color:var(--grey-1); font-size:15px; max-width:38ch; margin-bottom:22px; }
+.project-open{
+  display:inline-flex; align-items:center; gap:10px;
+  font-family:var(--font-mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+  padding-bottom:6px; border-bottom:1px solid var(--line-strong);
+  transition: border-color .3s var(--ease), gap .3s var(--ease);
+}
+.project-open:hover{ border-color:var(--pure); gap:16px; }
+.ar{ width:11px; height:11px; display:inline-block;
+  background-image:url("assets/icons/arrow-up-right.svg"); background-repeat:no-repeat; background-size:contain;
+  filter:invert(1);
+}
+
+@media (max-width: 880px){
+  .project-row, .project-row.reverse{ grid-template-columns:1fr; direction:ltr; }
+}
+
+/* ==========================================================================
+   TRACKS SHOWCASE (horizontal audio carousel)
+   ========================================================================== */
+.tracks-showcase{ padding-bottom: clamp(70px,9vw,130px); }
+.tracks-showcase:first-of-type{ padding-bottom: clamp(24px,3vw,40px); }
+
+.tracks-showcase-head{
+  display:flex; align-items:center; justify-content:flex-start;
+  flex-wrap:wrap; gap: clamp(12px, 2vw, 20px);
+  margin-bottom:22px;
+}
+.tracks-showcase-head .section-label.small{ margin-bottom:0; }
+
+.drive-link{
+  display:inline-flex; align-items:center; gap:7px;
+  padding: 7px 13px 7px 10px;
+  border:1px solid var(--line-strong); border-radius:999px;
+  font-family:var(--font-mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase;
+  white-space:nowrap;
+  transition: background-color .3s var(--ease), border-color .3s var(--ease);
+  flex-shrink:0;
+}
+.drive-link:hover{ background-color:var(--surface); border-color:var(--pure); }
+.drive-link-icon{
+  width:12px; height:12px; flex-shrink:0;
+  background-repeat:no-repeat; background-position:center; background-size:contain;
+  opacity:.9; filter:invert(1);
+}
+.drive-link-text{ display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+.drive-link-text .ar{ width:9px; height:9px; flex-shrink:0; }
+
+@media (max-width: 560px){
+  .tracks-showcase-head{ flex-direction:column; align-items:flex-start; }
+  .drive-link{ width:100%; justify-content:center; }
+}
+
+.tracks-viewport{ position:relative; }
+
+.tracks-scroll{
+  display:flex; flex-wrap:nowrap; gap: clamp(18px, 2.4vw, 28px);
+  overflow-x:auto; overscroll-behavior-x:contain;
+  padding-bottom: 6px;
+  cursor:grab;
+  scrollbar-width:none;
+}
+.tracks-scroll::-webkit-scrollbar{ display:none; }
+.tracks-scroll.dragging{ cursor:grabbing; }
+
+.track-card{
+  flex: 0 0 auto;
+  width: clamp(150px, 18vw, 174px);
+  user-select:none; -webkit-user-select:none;
+}
+.track-cover{
+  position:relative; aspect-ratio:1/1;
+}
+/* Clipping lives on this inner frame (not .track-cover itself) so the
+   hover-zoomed image/tint stay contained to the square while the
+   .track-tooltip below can still render outside of it, unclipped. */
+.track-cover-frame{
+  position:absolute; inset:0; overflow:hidden;
+  border-radius:8px; background:var(--surface);
+}
+.track-cover-frame img{
+  width:100%; height:100%; object-fit:cover; pointer-events:none;
+  filter:grayscale(1); transition: filter .45s var(--ease-soft), transform .6s var(--ease);
+}
+.track-cover-frame::after{
+  content:''; position:absolute; inset:0;
+  background-color:rgba(10,10,10,0);
+  transition: background-color .3s var(--ease);
+  pointer-events:none;
+}
+/* Discreet format tag — same small mono-badge language as .hero-image-tag
+   / .about-studio-strip .caption elsewhere on the site. */
+.track-format-badge{
+  position:absolute; top:7px; left:7px; z-index:2;
+  font-family:var(--font-mono); font-size:9px; letter-spacing:.05em;
+  color:var(--grey-1);
+  background:rgba(10,10,10,.55); padding:3px 6px; border-radius:3px;
+  pointer-events:none;
+}
+.track-card:hover .track-cover-frame img{ filter:grayscale(0); transform:scale(1.02); }
+.track-card:hover .track-cover-frame::after{ background-color:rgba(10,10,10,.32); }
+
+.track-play{
+  position:absolute; inset:0; margin:auto; width:42px; height:42px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(10,10,10,.5);
+  opacity:.9;
+  transition: opacity .3s var(--ease), background-color .3s var(--ease), transform .3s var(--ease);
+}
+.track-play-icon{
+  width:13px; height:13px; background-repeat:no-repeat; background-position:center; background-size:contain;
+  background-image:url("assets/icons/play.svg"); filter:invert(1);
+}
+.track-play.playing .track-play-icon{ background-image:url("assets/icons/pause.svg"); }
+.track-play.playing{ opacity:1; }
+
+@media (hover:hover){
+  .track-play{ opacity:0; }
+  .track-card:hover .track-play{ opacity:1; transform:scale(1.05); }
+  .track-play.playing{ opacity:1; }
+}
+
+.track-progress{
+  position:absolute; left:8px; right:8px; bottom:8px; height:3px; z-index:2;
+  background:rgba(245,243,240,.22); border-radius:2px; cursor:pointer;
+  touch-action:none;
+}
+.track-progress-fill{
+  height:100%; width:0%; background:var(--dark-accent); border-radius:2px;
+}
+.track-progress-thumb{
+  position:absolute; top:50%; left:0%; width:9px; height:9px; border-radius:50%;
+  background:var(--dark-accent); transform:translate(-50%,-50%); opacity:0;
+  transition: opacity .2s var(--ease);
+  pointer-events:none;
+}
+.track-card:hover .track-progress-thumb, .track-progress.seeking .track-progress-thumb{ opacity:1; }
+
+.track-card.is-playing .track-cover-frame img{ filter:grayscale(0); }
+
+/* Full-title tooltip — shows on cover hover so long track names aren't
+   stuck truncated by .track-title's ellipsis. Lives as a single element
+   appended to <body> (see showTrackTooltip() in script.js) and positioned
+   in JS from the hovered cover's own coordinates, rather than as a CSS
+   descendant of it — that's what lets it size to its content (any number
+   of lines) instead of being clipped by .tracks-scroll's overflow-x:auto
+   (which, per spec, also clips the vertical axis). */
+.track-tooltip{
+  position:absolute; z-index:60;
+  transform:translate(-50%, -4px);
+  max-width:220px; width:max-content;
+  padding:6px 10px;
+  background:var(--surface); border:1px solid var(--line-strong); border-radius:6px;
+  font-family:var(--font-mono); font-size:11px; letter-spacing:.02em; color:var(--white);
+  text-align:center; white-space:normal;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transition: opacity .25s var(--ease-soft), transform .25s var(--ease-soft), visibility .25s;
+}
+.track-tooltip.is-visible{ opacity:1; visibility:visible; transform:translate(-50%, 0); }
+
+.track-info{ margin-top:8px; display:flex; align-items:baseline; gap:8px; }
+.track-title{
+  display:block; flex:1 1 auto; min-width:0;
+  font-size:13px; color:var(--grey-1); font-weight:300;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  transition: color .3s var(--ease);
+}
+.track-card:hover .track-title, .track-card.is-playing .track-title{ color:var(--white); }
+.track-time{
+  flex-shrink:0; font-family:var(--font-mono); font-size:10px; color:var(--grey-1); letter-spacing:.02em;
+}
+
+.tracks-arrow{
+  position:absolute; top:calc(50% - 6px); transform:translateY(-50%); z-index:2;
+  width:36px; height:36px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(10,10,10,.55); border:1px solid var(--dark-line);
+  backdrop-filter: blur(2px);
+  opacity:0; visibility:hidden; pointer-events:none;
+  transition: background-color .3s var(--ease), opacity .3s var(--ease), visibility .3s;
+}
+.tracks-arrow:hover{ background-color:var(--dark-surface-hover); }
+.tracks-viewport:hover .tracks-arrow:not([disabled]){ opacity:1; visibility:visible; pointer-events:auto; }
+.tracks-arrow-prev{ left:-14px; }
+.tracks-arrow-prev .ar-right{ transform:scaleX(-1); }
+.tracks-arrow-next{ right:-14px; }
+.tracks-arrow .ar-right{
+  width:12px; height:12px; display:inline-block;
+  background-image:url("assets/icons/arrow-right.svg");
+  background-repeat:no-repeat; background-position:center; background-size:contain;
+  filter:invert(1);
+}
+.tracks-showcase.no-overflow .tracks-arrow{ display:none; }
+
+@media (max-width: 560px){
+  .tracks-arrow{ display:none; }
+}
+
+.tracks-progress-track{
+  position:relative; height:2px; margin-top:10px;
+  background:rgba(238,242,238,.12); border-radius:2px; overflow:hidden;
+}
+.tracks-progress-thumb{
+  position:absolute; top:0; left:0; height:100%; width:0%;
+  background:var(--line-strong); border-radius:2px;
+  transition: background-color .3s var(--ease);
+}
+.tracks-showcase.no-overflow .tracks-progress-track{ display:none; }
+
+/* ==========================================================================
+   CONCERTS
+   ========================================================================== */
+.concerts::before{
+  content:''; position:absolute; top:0; left:50%; width:100vw; height:100%;
+  transform:translateX(-50%); background:var(--bg-alt-2); z-index:-1;
+}
+
+/* .concerts-top's own ::before bleeds its photo backdrop upward, past its
+   own box, into this label's space (see the negative top offset below) —
+   since .concerts-top paints after this label in normal DOM order, that
+   backdrop would otherwise cover the "04 Concerts" text entirely. Lifting
+   the label onto its own stacking level keeps it painted on top. */
+.concerts > .section-label{ position:relative; z-index:1; }
+
+/* Header/banner — the section title sits on its own full-bleed photo
+   backdrop, scoped to just this block (not the whole section). */
+.concerts-top{
+  position:relative; isolation:isolate;
+  min-height:100vh; min-height:100svh;
+  display:flex; align-items:center;
+  margin-bottom:0;
+}
+.concerts-top::before{
+  content:'';
+  position:absolute;
+  top: calc(-1 * (clamp(90px,12vw,140px) + 18px + clamp(30px,5vw,56px)));
+  left:50%; width:100vw;
+  height: calc(100% + clamp(90px,12vw,140px) + 18px + clamp(30px,5vw,56px));
+  transform:translateX(-50%); z-index:-1;
+  background:
+    linear-gradient(180deg, rgba(9,12,10,.85) 0%, rgba(9,12,10,.55) 45%, rgba(9,12,10,.88) 100%),
+    var(--bg-alt-2) url("assets/images/FUNDO CONCERTS.png") no-repeat right 25% / cover;
+}
+
+/* Discreet fixed dot-nav for jumping between concerts — visible only while
+   the Concerts section is on screen (toggled via IntersectionObserver in
+   script.js), labels reveal on hover/active so it stays out of the way. */
+.concerts-sidenav{
+  position:fixed; left:22px; top:50%; transform:translateY(-50%);
+  z-index:40;
+  display:flex; flex-direction:column; gap:16px;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transition: opacity .5s var(--ease-soft), visibility .5s;
+}
+.concerts-sidenav.is-visible{ opacity:1; visibility:visible; pointer-events:auto; }
+.concerts-sidenav a{
+  display:flex; align-items:center; gap:10px;
+  font-family:var(--font-mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--grey-1);
+}
+.concerts-sidenav a::before{
+  content:''; flex:none; width:6px; height:6px; border-radius:50%;
+  background:var(--line-strong);
+  transition: background-color .3s var(--ease), transform .3s var(--ease);
+}
+.concerts-sidenav a span{
+  display:inline-block; max-width:0; overflow:hidden; white-space:nowrap;
+  opacity:0;
+  transition: max-width .35s var(--ease), opacity .3s var(--ease);
+}
+.concerts-sidenav a:hover span, .concerts-sidenav a.active span{ max-width:110px; opacity:1; }
+.concerts-sidenav a:hover::before, .concerts-sidenav a.active::before{ background:var(--white); transform:scale(1.3); }
+.concerts-sidenav a.active{ color:var(--white); }
+
+@media (max-width: 1150px){
+  .concerts-sidenav{ display:none; }
+}
+
+.concert-list{ padding-bottom:0; }
+
+.concert-row{
+  display:grid; grid-template-columns: 1.5fr 1fr; gap: var(--gutter);
+  align-items:center;
+  min-height:100vh; min-height:100svh;
+  padding: clamp(40px,6vw,70px) 0;
+  border-top:1px solid var(--line);
+}
+.concert-row:last-child{ border-bottom:1px solid var(--line); }
+.concert-row.reverse{ direction:rtl; }
+.concert-row.reverse > *{ direction:ltr; }
+
+.concert-media{ aspect-ratio: 16/10.3; overflow:hidden; position:relative; border:1px solid var(--line-strong); }
+.concert-media img{ width:100%; height:100%; object-fit:cover; filter:grayscale(1); transition: transform .8s var(--ease), filter .45s var(--ease-soft); }
+.concert-row:hover .concert-media img{ transform:scale(1.035); }
+.concert-media.in-focus img{ filter:grayscale(0); }
+
+/* Modular multi-photo carousel — activated only when a block has more than one photo (see script.js) */
+.project-media.media-multi img, .concert-media.media-multi img{
+  position:absolute; inset:0; opacity:0; pointer-events:none;
+  transition: transform .8s var(--ease), filter .45s var(--ease-soft), opacity .65s ease-in-out;
+}
+.project-media.media-multi img.is-active, .concert-media.media-multi img.is-active{
+  opacity:1; pointer-events:auto;
+}
+.media-nav{
+  position:absolute; z-index:3; right:14px; bottom:14px;
+  width:34px; height:34px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(10,10,10,.55); border:1px solid var(--dark-line);
+  backdrop-filter: blur(2px);
+  transition: background-color .3s var(--ease), transform .3s var(--ease);
+}
+.media-nav:hover{ background-color:var(--dark-surface-hover); transform:scale(1.08); }
+.media-nav .ar-right{
+  width:13px; height:13px; display:inline-block;
+  background-image:url("assets/icons/arrow-right.svg");
+  background-repeat:no-repeat; background-position:center; background-size:contain;
+  filter:invert(1);
+}
+/* Portrait source photos stacked inside the landscape concert-media carousel box —
+   bias the crop toward the performers instead of a plain center crop */
+img[src^="assets/images/concert-01-2.jpg"]{ object-position: center 78%; }
+img[src^="assets/images/concert-03-2.jpg"]{ object-position: center 75%; }
+
+.media-counter{
+  position:absolute; z-index:3; left:14px; bottom:14px;
+  font-family:var(--font-mono); font-size:10px; letter-spacing:.05em;
+  background:rgba(10,10,10,.55); padding:5px 9px; backdrop-filter: blur(2px);
+  pointer-events:none;
+  color:var(--dark-text);
+}
+
+.concert-meta{
+  display:flex; align-items:center; gap:10px;
+  font-family:var(--font-mono); font-size:12px; letter-spacing:.04em; color:var(--grey-1);
+}
+.concert-meta .dot{ color:var(--line-strong); }
+.concert-title{
+  font-family:var(--font-heading); font-weight:800; font-style:normal;
+  font-variation-settings:'wdth' 82, 'opsz' 72;
+  font-size:clamp(30px,4vw,51px); line-height:.99; letter-spacing:-.005em; margin:10px 0 16px;
+}
+.concert-desc{ color:var(--grey-1); font-size:15px; max-width:38ch; }
+
+@media (max-width: 880px){
+  .concert-row, .concert-row.reverse{ grid-template-columns:1fr; direction:ltr; }
+}
+
+/* ==========================================================================
+   INFLUENCES — a second horizontal-scroll carousel (album covers), styled
+   deliberately differently from the tracks-showcase carousel above: flat
+   square covers with a hairline frame instead of rounded/surface-backed
+   covers, a caption that slides up on hover instead of a play button, a
+   card-lift hover instead of an image-zoom hover, and light (page-toned)
+   square arrow buttons instead of the dark circular tracks-arrow chips.
+   ========================================================================== */
+.influences{ padding-bottom: clamp(70px,9vw,130px); }
+
+.influence-viewport{ position:relative; }
+.influence-scroll{
+  display:flex; flex-wrap:nowrap; gap:16px;
+  overflow-x:auto; overscroll-behavior-x:contain;
+  padding-bottom: 6px;
+  cursor:grab;
+  scrollbar-width:none;
+}
+.influence-scroll::-webkit-scrollbar{ display:none; }
+.influence-scroll.dragging{ cursor:grabbing; }
+
+.influence-card{
+  flex: 0 0 auto;
+  width: clamp(160px, 20vw, 210px);
+  user-select:none; -webkit-user-select:none;
+  transition: transform .35s var(--ease);
+}
+.influence-card:hover{ transform: translateY(-6px); }
+
+.influence-cover{
+  position:relative; aspect-ratio:1/1; overflow:hidden;
+  border:1px solid var(--line-strong);
+}
+.influence-cover img{
+  width:100%; height:100%; object-fit:cover; pointer-events:none;
+  filter:grayscale(1); transition: filter .5s var(--ease-soft);
+}
+.influence-card.in-focus .influence-cover img{ filter:grayscale(0); }
+
+.influence-caption{
+  position:absolute; inset:auto 0 0 0; padding:10px 12px;
+  background:linear-gradient(0deg, rgba(10,8,16,.85) 0%, rgba(10,8,16,0) 100%);
+  transform:translateY(100%);
+  transition: transform .35s var(--ease);
+}
+.influence-card:hover .influence-caption{ transform:translateY(0); }
+.influence-album{ display:block; font-family:var(--font-mono); font-size:11px; color:var(--dark-text); }
+.influence-artist{ display:block; font-family:var(--font-mono); font-size:10px; color:var(--dark-text-muted); margin-top:2px; }
+
+.influence-arrow{
+  position:absolute; top:calc(50% - 6px); transform:translateY(-50%); z-index:2;
+  width:38px; height:38px; border-radius:6px;
+  display:flex; align-items:center; justify-content:center;
+  background: var(--surface); border:1px solid var(--line-strong);
+  opacity:0; visibility:hidden; pointer-events:none;
+  transition: background-color .3s var(--ease), border-color .3s var(--ease), opacity .3s var(--ease), visibility .3s;
+}
+.influence-arrow:hover{ border-color:var(--pure); }
+.influence-viewport:hover .influence-arrow:not([disabled]){ opacity:1; visibility:visible; pointer-events:auto; }
+.influence-arrow-prev{ left:-14px; }
+.influence-arrow-prev .ar-right{ transform:scaleX(-1); }
+.influence-arrow-next{ right:-14px; }
+.influence-arrow .ar-right{
+  width:12px; height:12px; display:inline-block;
+  background-image:url("assets/icons/arrow-right.svg");
+  background-repeat:no-repeat; background-position:center; background-size:contain;
+  filter:invert(1);
+}
+.influences.no-overflow .influence-arrow{ display:none; }
+
+@media (max-width: 560px){
+  .influence-arrow{ display:none; }
+}
+
+/* ==========================================================================
+   GALLERY
+   ========================================================================== */
+.gallery::before{
+  content:''; position:absolute; top:0; left:50%; width:100vw; height:100%;
+  transform:translateX(-50%); background:var(--bg-alt); z-index:-1;
+}
+
+/* ---- Editorial two-column frame: a slim sidebar carrying "GALLERY" as a
+   large upright vertical mark (an art-directed graphic, not just a
+   heading) beside the photo grid, which is otherwise completely
+   untouched — same #galleryGrid, same script.js rendering/lightbox, only
+   the surrounding layout changed. The sidebar's inner content is sticky
+   so the word stays in view as you browse down through the (much taller)
+   grid, the way a running page-furniture element would in print. */
+.gallery{
+  padding-top: clamp(40px,6vw,70px);
+  padding-bottom: clamp(70px,9vw,130px);
+  display:grid;
+  grid-template-columns: minmax(96px, 200px) 1fr;
+  column-gap: clamp(28px, 4vw, 64px);
+}
+.gallery-side{ border-right:1px solid var(--line); }
+.gallery-side-inner{
+  position:sticky; top:110px;
+  display:flex; flex-direction:column; gap:clamp(20px,3vw,36px);
+  padding-right: clamp(20px,3vw,36px);
+}
+.gallery-side .section-label{ padding-top:0; margin-bottom:0; }
+.gallery .section-title{
+  writing-mode: vertical-lr; text-orientation: upright;
+  /* Base/"wanted" size — script.js measures the rendered word against the
+     actual viewport height and shrinks this (never grows it) if needed,
+     so GALLERY never clips regardless of resolution; see "3b". */
+  font-size: clamp(34px, 5vw, 86px);
+  line-height:.94; letter-spacing:.03em;
+  margin:0;
+}
+/* The full word GALLERY is always fully present, at full opacity — only
+   color/glow/scale ever change, never opacity, so no letter can read as
+   "not there yet". Scroll (see "3b" in script.js) moves a single .is-active
+   letter down the word at a time, like a spotlight passing over it: one
+   letter brightens and lifts slightly, then eases back to the resting
+   look as the next one takes over. */
+.gallery-letter{
+  display:inline-block;
+  color: var(--grey-1);
+  transform: scale(1);
+  transition: color .5s var(--ease-soft), text-shadow .5s var(--ease-soft), transform .5s var(--ease-soft);
+}
+.gallery-letter.is-active{
+  color: var(--white);
+  transform: scale(1.08);
+  text-shadow: 0 0 24px rgba(238,242,239,.45), 0 0 6px rgba(238,242,239,.3);
+}
+/* Instagram-profile-style grid: same column width/alignment for every
+   tile; videos stay square, photos get a slightly taller row span (~4:5)
+   for more presence. grid-auto-rows is a row unit (not a real aspect
+   ratio) tuned against this grid's actual column width at --max, so
+   video spans still read as square; dense flow packs around the taller
+   photo spans so nothing leaves a gap. */
+.gallery-grid{
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 80px;
+  grid-auto-flow: dense;
+  gap: 4px;
+}
+.g-item{ position:relative; overflow:hidden; cursor:pointer; grid-column: span 1; grid-row: span 4; }
+.g-item[data-type="image"]{ grid-row: span 5; }
+
+.g-item img, .g-item video{ width:100%; height:100%; object-fit:cover; filter:grayscale(1); transition: transform .7s var(--ease), filter .45s var(--ease-soft); }
+.g-item:hover img, .g-item:hover video{ transform:scale(1.06); }
+.g-item.in-focus img, .g-item.in-focus video{ filter:grayscale(0); }
+.g-item-play{
+  position:absolute; inset:0; margin:auto; width:40px; height:40px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; z-index:1;
+  background:rgba(10,10,10,.5); border:1px solid var(--dark-line); backdrop-filter: blur(2px);
+  pointer-events:none;
+}
+.g-item-play .track-play-icon{ width:13px; height:13px; }
+
+@media (max-width: 880px){
+  /* Not enough width for a vertical word beside a photo grid — GALLERY
+     drops back to a plain, bold, horizontal heading above the grid,
+     still large enough to read as a graphic statement, just not sideways. */
+  .gallery{ display:block; padding-top: clamp(90px,12vw,140px); }
+  .gallery-side{ border-right:none; }
+  .gallery-side-inner{ position:static; padding-right:0; margin-bottom: clamp(24px,5vw,40px); }
+  .gallery-side .section-label{ padding-top:0; margin-bottom: clamp(16px,3vw,24px); }
+  .gallery .section-title{
+    writing-mode: horizontal-tb;
+    font-size: clamp(36px, 9vw, 64px);
+    line-height:.97; letter-spacing:normal;
+  }
+  /* The letter-by-letter scroll effect is sticky-only (see script.js) —
+     without it, show the word at full, even brightness rather than stuck
+     mid-transition. is-active is redundantly reset too since script.js
+     already stops toggling it once the sidebar stops being sticky. */
+  .gallery-letter{ color:inherit; opacity:1; text-shadow:none; transform:none; transition:none; }
+  .gallery-letter.is-active{ color:inherit; text-shadow:none; transform:none; }
+  .gallery-grid{ grid-template-columns: repeat(3,1fr); grid-auto-rows: 28px; gap:3px; }
+}
+
+/* ==========================================================================
+   CONTACT
+   ========================================================================== */
+.contact{ padding-bottom:40px; overflow:hidden; }
+.contact-bg-word{
+  position:absolute; right:-2%; top:6%;
+  font-family:var(--font-display); font-weight:700;
+  font-size:clamp(90px,20vw,320px); color:var(--white); opacity:.045;
+  pointer-events:none; user-select:none; z-index:0;
+}
+.contact-grid{
+  position:relative; z-index:1;
+  padding-bottom: clamp(70px,10vw,130px);
+  border-bottom:1px solid var(--line);
+}
+.contact-links{
+  display:flex; justify-content:flex-end; flex-wrap:wrap;
+  gap: clamp(14px, 2.4vw, 28px);
+}
+.contact-link{
+  display:inline-flex; align-items:center; gap:10px;
+  padding: 12px 20px 12px 16px;
+  border:1px solid var(--line-strong); border-radius:999px;
+  transition: background-color .3s var(--ease), border-color .3s var(--ease), opacity .3s var(--ease);
+}
+.contact-link:hover{ background-color:var(--surface); border-color:var(--pure); }
+.contact-link-icon{
+  width:16px; height:16px; flex-shrink:0;
+  background-repeat:no-repeat; background-position:center; background-size:contain;
+  opacity:.9; filter:invert(1);
+}
+.contact-link-text{
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:var(--font-mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+}
+.contact-link-text .ar{ width:10px; height:10px; }
+
+@media (max-width: 560px){
+  .contact-links{ justify-content:center; width:100%; }
+}
+
+.footer-row{
+  display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  padding: 26px 0;
+  font-family:var(--font-mono); font-size:11px; color:var(--grey-1); letter-spacing:.04em;
+}
+
+/* ==========================================================================
+   PROJECT OVERLAY (editorial detail spread)
+   ========================================================================== */
+.project-overlay{
+  position:fixed; inset:0; z-index:200;
+  background:var(--bg);
+  transform: translateY(100%);
+  transition: transform .7s var(--ease);
+  overflow:hidden;
+}
+.project-overlay.open{ transform:translateY(0); }
+.overlay-scroll{ height:100%; overflow-y:auto; }
+.overlay-close{
+  position:fixed; top:24px; right:var(--gutter); z-index:210;
+  width:40px; height:40px; border:1px solid var(--line-strong); border-radius:50%;
+  background-image:url("assets/icons/close.svg"); background-repeat:no-repeat; background-position:center; background-size:14px;
+  transition: transform .3s var(--ease), background-color .3s;
+  filter:invert(1);
+}
+.overlay-close:hover{ transform:rotate(90deg); background-color:var(--surface); }
+
+.overlay-inner{ max-width: var(--max); margin:0 auto; padding: 110px var(--gutter) 100px; }
+.overlay-eyebrow{ font-family:var(--font-mono); font-size:12px; color:var(--grey-1); letter-spacing:.08em; text-transform:uppercase; margin-bottom:18px; }
+.overlay-title{
+  font-family:var(--font-heading); font-weight:800; font-style:normal;
+  font-variation-settings:'wdth' 82, 'opsz' 96;
+  font-size:clamp(40px,7vw,96px); line-height:.93; letter-spacing:-.005em; margin-bottom:30px;
+}
+.overlay-hero-img{ width:100%; aspect-ratio:16/8; overflow:hidden; margin-bottom:50px; }
+.overlay-hero-img img{ width:100%; height:100%; object-fit:cover; filter:grayscale(1); }
+
+.overlay-meta-row{
+  display:grid; grid-template-columns: repeat(4,1fr); gap: var(--gutter);
+  padding: 26px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  margin-bottom:60px;
+}
+.overlay-meta-row div{ font-family:var(--font-mono); font-size:11px; color:var(--grey-1); }
+.overlay-meta-row div b{ display:block; color:var(--white); font-family:var(--font-body); font-size:14px; font-weight:400; margin-top:6px; }
+
+.overlay-story{ display:grid; grid-template-columns: 1fr 1fr; gap: var(--gutter); margin-bottom:70px; }
+.overlay-story p{ color:var(--grey-1); font-size:16px; line-height:1.85; }
+.overlay-story p:first-child{ color:var(--white); font-size:19px; }
+
+.overlay-images{ display:grid; grid-template-columns: repeat(3, 1fr); gap:14px; margin-bottom:70px; }
+.overlay-images div{ aspect-ratio:4/5; overflow:hidden; cursor:pointer; }
+.overlay-images img{ width:100%; height:100%; object-fit:cover; filter:grayscale(1); transition:transform .6s var(--ease); }
+.overlay-images div:hover img{ transform:scale(1.05); }
+
+.overlay-audio{
+  border:1px solid var(--line-strong); padding: 26px var(--gutter);
+  display:flex; align-items:center; gap:22px; margin-bottom:70px;
+}
+.audio-toggle{ width:46px; height:46px; border-radius:50%; border:1px solid var(--line-strong); flex-shrink:0; background-repeat:no-repeat; background-position:center; background-size:16px; transition:background-color .3s; filter:invert(1); }
+.audio-toggle.playing{ background-color:var(--surface); }
+.audio-track-name{ font-family:var(--font-mono); font-size:12px; color:var(--grey-1); flex-shrink:0; }
+.audio-bars{ display:flex; align-items:center; gap:3px; height:26px; flex:1; }
+.audio-bars span{ width:3px; background:var(--line-strong); height:20%; transition:height .15s ease, background-color .3s; }
+.audio-bars.playing span{ background:var(--white); }
+
+.listen-btn{
+  flex-shrink:0;
+  display:inline-flex; align-items:center; gap:10px;
+  font-family:var(--font-mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+  border:1px solid var(--line-strong); padding:14px 22px;
+  transition: background .3s var(--ease), color .3s var(--ease);
+}
+.listen-btn:hover{ background:var(--pure); color:var(--bg); }
+.listen-btn:hover .ar{ background-image:url("assets/icons/arrow-up-right.svg"); filter:none; }
+
+@media (max-width: 880px){
+  .listen-btn{ width:100%; justify-content:center; }
+}
+
+.overlay-notes{ display:grid; grid-template-columns: 160px 1fr; gap: var(--gutter); padding-top:40px; border-top:1px solid var(--line); }
+.overlay-notes h4{ font-family:var(--font-mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--grey-1); }
+.overlay-notes p{ color:var(--grey-1); font-size:15px; line-height:1.8; max-width:60ch; }
+
+@media (max-width: 880px){
+  .overlay-meta-row{ grid-template-columns: repeat(2,1fr); row-gap:20px; }
+  .overlay-story{ grid-template-columns:1fr; }
+  .overlay-images{ grid-template-columns: repeat(2,1fr); }
+  .overlay-notes{ grid-template-columns:1fr; gap:14px; }
+  .overlay-audio{ flex-wrap:wrap; }
+}
+
+/* ==========================================================================
+   LIGHTBOX
+   ========================================================================== */
+.lightbox{
+  position:fixed; inset:0; z-index:300; background:rgba(10,10,10,.96);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+  opacity:0; visibility:hidden; transition: opacity .4s var(--ease), visibility .4s;
+  padding: 40px var(--gutter);
+}
+.lightbox.open{ opacity:1; visibility:visible; }
+.lightbox img, .lightbox video{
+  max-width:min(90vw, 900px); max-height:78vh; object-fit:contain; filter:grayscale(1); display:block;
+  transform:scale(.92); transition: transform .4s var(--ease-soft);
+}
+.lightbox.open img, .lightbox.open video{ transform:scale(1); }
+.lightbox video{ display:none; }
+.lightbox.is-video img{ display:none; }
+.lightbox.is-video video{ display:block; filter:none; }
+.lightbox.from-gallery img{ filter:none; }
+.lightbox-caption{ font-family:var(--font-mono); font-size:12px; color:var(--dark-text-muted); }
+.lightbox-close{
+  position:absolute; top:24px; right:var(--gutter); z-index:2;
+  width:40px; height:40px; border:1px solid var(--dark-line); border-radius:50%;
+  background-image:url("assets/icons/close.svg"); background-repeat:no-repeat; background-position:center; background-size:14px;
+  transition: transform .3s var(--ease);
+}
+.lightbox-close:hover{ transform:rotate(90deg); }
+
+.lightbox-nav{
+  position:absolute; top:50%; transform:translateY(-50%); z-index:2;
+  width:44px; height:44px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(10,10,10,.55); border:1px solid var(--dark-line); backdrop-filter: blur(2px);
+  transition: background-color .3s var(--ease);
+}
+.lightbox-nav:hover{ background-color:var(--dark-surface-hover); }
+.lightbox-prev{ left: clamp(10px, 3vw, 30px); }
+.lightbox-next{ right: clamp(10px, 3vw, 30px); }
+.lightbox-prev .ar-right{ transform:scaleX(-1); }
+.lightbox-nav .ar-right{
+  width:14px; height:14px; display:inline-block;
+  background-image:url("assets/icons/arrow-right.svg");
+  background-repeat:no-repeat; background-position:center; background-size:contain;
+  filter:invert(1);
+}
+
+@media (max-width: 560px){
+  .lightbox-nav{ width:36px; height:36px; }
+  .lightbox-prev{ left:6px; }
+  .lightbox-next{ right:6px; }
+}
+
+/* ==========================================================================
+   MINI AUDIO PLAYER (floating card, Apple-Music-style)
+   ========================================================================== */
+body.has-mini-player{ padding-bottom:100px; transition: padding-bottom .5s var(--ease-soft); }
+
+.mini-player{
+  position:fixed; left:50%; bottom:18px; z-index:150;
+  width:min(400px, calc(100vw - 32px));
+  background:rgba(18,14,26,.88); backdrop-filter: blur(16px);
+  border:1px solid var(--dark-line); border-radius:999px;
+  box-shadow: 0 16px 40px rgba(0,0,0,.45), 0 4px 12px rgba(0,0,0,.3);
+  transform:translate(-50%, 140%);
+  transition: transform .5s var(--ease-soft);
+  color:var(--dark-text);
+}
+.mini-player.open{ transform:translate(-50%, 0); }
+
+.mini-player-inner{
+  padding:10px 18px 10px 10px;
+  display:flex; align-items:center; gap:10px;
+}
+.mini-player-cover{
+  width:42px; height:42px; border-radius:9px; overflow:hidden; flex-shrink:0; background:var(--dark-surface-hover);
+}
+.mini-player-cover img{ width:100%; height:100%; object-fit:cover; }
+
+.mini-player-info{ flex:1 1 auto; min-width:0; }
+.mini-player-title{
+  display:block; position:relative; font-size:12px; color:var(--dark-text); font-weight:400;
+  white-space:nowrap; overflow:hidden; margin-bottom:6px;
+}
+.mini-player-title-track{
+  display:inline-block; transform:translateX(0); transition: transform .3s ease;
+}
+/* Only kicks in when the title is actually wider than its box (see the
+   .can-marquee toggle in script.js) — short titles never move. */
+.mini-player-title.can-marquee:hover .mini-player-title-track{
+  animation: mini-player-marquee var(--marquee-duration, 4s) linear infinite alternate;
+}
+@keyframes mini-player-marquee{
+  0%{ transform:translateX(0); }
+  100%{ transform:translateX(var(--marquee-distance, 0)); }
+}
+.mini-player-progress{
+  position:relative; height:3px; background:rgba(245,243,240,.18); border-radius:2px; cursor:pointer;
+  touch-action:none;
+}
+.mini-player-progress-fill{ height:100%; width:0%; background:var(--dark-accent); border-radius:2px; }
+.mini-player-progress-thumb{
+  position:absolute; top:50%; left:0%; width:9px; height:9px; border-radius:50%;
+  background:var(--dark-accent); transform:translate(-50%,-50%); opacity:0;
+  transition: opacity .2s var(--ease);
+  pointer-events:none;
+}
+.mini-player:hover .mini-player-progress-thumb, .mini-player-progress.seeking .mini-player-progress-thumb{ opacity:1; }
+
+.mini-player-time{
+  flex-shrink:0; font-family:var(--font-mono); font-size:9px; color:var(--dark-text-muted); letter-spacing:.02em;
+}
+
+.mini-player-volume{ position:relative; flex-shrink:0; }
+.mini-player-volume-toggle{
+  width:32px; height:32px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  border:1px solid var(--dark-line);
+  transition: background-color .3s var(--ease);
+}
+.mini-player-volume-toggle:hover{ background-color:var(--dark-surface-hover); }
+.mini-player-volume-toggle .volume-icon{
+  width:16px; height:16px; display:inline-block;
+  background-image:url("assets/icons/volume.svg");
+  background-repeat:no-repeat; background-position:center; background-size:contain;
+  filter:invert(1);
+}
+.mini-player-volume-toggle.muted .volume-icon{
+  background-image:url("assets/icons/volume-mute.svg");
+}
+.mini-player-volume-popup{
+  position:absolute; left:50%; bottom:calc(100% + 10px); z-index:2;
+  transform:translateX(-50%) translateY(4px) scale(.92);
+  transform-origin:bottom center;
+  background:rgba(18,14,26,.94); border:1px solid var(--dark-line); border-radius:999px;
+  padding:10px 8px;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transition: opacity .2s var(--ease), transform .2s var(--ease), visibility .2s;
+}
+.mini-player-volume:hover .mini-player-volume-popup,
+.mini-player-volume:focus-within .mini-player-volume-popup,
+.mini-player-volume.open .mini-player-volume-popup{
+  opacity:1; visibility:visible; pointer-events:auto;
+  transform:translateX(-50%) translateY(0) scale(1);
+}
+.mini-player-volume-range{
+  writing-mode: vertical-lr; direction: rtl;
+  appearance:none; -webkit-appearance:none;
+  width:4px; height:70px;
+  background:rgba(245,243,240,.18); border-radius:2px;
+  outline:none; cursor:pointer;
+}
+.mini-player-volume-range::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none;
+  width:12px; height:12px; border-radius:50%;
+  background:var(--dark-accent);
+  border:none;
+}
+.mini-player-volume-range::-moz-range-thumb{
+  width:12px; height:12px; border-radius:50%;
+  background:var(--dark-accent); border:none;
+}
+.mini-player-volume-range::-moz-range-track{
+  width:4px; background:rgba(245,243,240,.18); border-radius:2px;
+}
+
+.mini-player-toggle, .mini-player-close{
+  width:32px; height:32px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  border:1px solid var(--dark-line);
+  transition: background-color .3s var(--ease), transform .3s var(--ease);
+}
+.mini-player-toggle:hover, .mini-player-close:hover{ background-color:var(--dark-surface-hover); }
+.mini-player-toggle .track-play-icon{ width:12px; height:12px; }
+.mini-player-toggle.playing .track-play-icon{ background-image:url("assets/icons/pause.svg"); }
+.mini-player-close{
+  background-image:url("assets/icons/close.svg"); background-repeat:no-repeat; background-position:center; background-size:11px;
+  filter:invert(1);
+}
+.mini-player-close:hover{ transform:rotate(90deg); }
+
+@media (max-width: 560px){
+  .mini-player{ width:calc(100vw - 24px); bottom:14px; }
+  .mini-player-time{ display:none; }
+  .mini-player-inner{ gap:8px; padding:8px 10px; }
+  /* Keep the mobile bar's original (smaller) proportions — the height
+     bump above is only for the macOS/Windows desktop browser case. */
+  .mini-player-cover{ width:36px; height:36px; border-radius:8px; }
+  .mini-player-volume-toggle, .mini-player-toggle, .mini-player-close{ width:28px; height:28px; }
+  .mini-player-volume-toggle .volume-icon{ width:14px; height:14px; }
+  .mini-player-toggle .track-play-icon{ width:11px; height:11px; }
+  .mini-player-close{ background-size:10px; }
+}
+
+/* ==========================================================================
+   Scrollbar (subtle, webkit)
+   ========================================================================== */
+::-webkit-scrollbar{ width:12px; }
+::-webkit-scrollbar-track{ background:var(--bg); }
+::-webkit-scrollbar-thumb{ background:var(--surface); border:3px solid var(--bg); border-radius:8px; }

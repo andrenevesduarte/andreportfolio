@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p /private/tmp/claude-501/-Users-andreduarte-Downloads-portfolio/1db1b055-a6f4-46c2-bc52-1bfd2af7f105/scratchpad/qa)",
+      "Bash(cp -r /Users/andreduarte/Downloads/portfolio/assets /private/tmp/claude-501/-Users-andreduarte-Downloads-portfolio/1db1b055-a6f4-46c2-bc52-1bfd2af7f105/scratchpad/qa/)",
+      "Bash(cp /Users/andreduarte/Downloads/portfolio/index.html /private/tmp/claude-501/-Users-andreduarte-Downloads-portfolio/1db1b055-a6f4-46c2-bc52-1bfd2af7f105/scratchpad/qa/)",
+      "Bash(cp /Users/andreduarte/Downloads/portfolio/style.css /private/tmp/claude-501/-Users-andreduarte-Downloads-portfolio/1db1b055-a6f4-46c2-bc52-1bfd2af7f105/scratchpad/qa/)",
+      "Bash(cp /Users/andreduarte/Downloads/portfolio/script.js /private/tmp/claude-501/-Users-andreduarte-Downloads-portfolio/1db1b055-a6f4-46c2-bc52-1bfd2af7f105/scratchpad/qa/)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless --disable-gpu --screenshot=/private/tmp/claude-501/-Users-andreduarte-Downloads-portfolio/1db1b055-a6f4-46c2-bc52-1bfd2af7f105/scratchpad/qa_about.png --window-size=1440,1900 --hide-scrollbars --virtual-time-budget=4000 --user-data-dir=/private/tmp/claude-501/-Users-andreduarte-Downloads-portfolio/1db1b055-a6f4-46c2-bc52-1bfd2af7f105/scratchpad/qa-prof-a3 'file:///private/tmp/claude-501/-Users-andreduarte-Downloads-portfolio/1db1b055-a6f4-46c2-bc52-1bfd2af7f105/scratchpad/qa/index.html#about')",
+      "Bash(echo \"exit $?\")",
+      "Bash(cd *)"
+    ]
+  }
+}

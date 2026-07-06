@@ -1,0 +1,10 @@
+.DS_Store
+Thumbs.db
+*.log
+.env
+.vscode/
+.idea/
+
+# Vídeos-fonte pesados (usar os .mp4 otimizados no site)
+*.MOV
+*.mov
