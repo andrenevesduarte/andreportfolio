@@ -544,7 +544,7 @@ main > section{
 .about-bio{
   font-size:16px; color:#c3cbc5; line-height:1.85; font-weight:400;
   margin-bottom:1.4em; break-inside:avoid;
-  text-align: left;
+  text-align: justify;
 }
 .about-bio:last-child{ margin-bottom:0; }
 .about-bio strong{ color:var(--white); font-weight:500; }
