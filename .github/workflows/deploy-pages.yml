@@ -1,0 +1,119 @@
+name: Deploy to GitHub Pages (debug)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+# Permissões necessárias para o deploy via "GitHub Actions" source
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Só um deploy de cada vez; não cancela um deploy a meio
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Ativa logs verbosos do runner para TODOS os steps deste job.
+      # (O método "oficial" é criar estas como repo secrets/variables em
+      #  Settings → Secrets and variables → Actions, mas defini-las aqui
+      #  também liga o debug logging para esta run.)
+      ACTIONS_STEP_DEBUG: true
+      ACTIONS_RUNNER_DEBUG: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # -------------------------------------------------------------------
+      # DEBUG 1: raio-x do que vai ser publicado (ANTES de criar o artifact)
+      # -------------------------------------------------------------------
+      - name: Inspecionar conteúdo do site
+        run: |
+          echo "::group::Contagem e tamanho total"
+          echo "Nº de ficheiros: $(find . -type f -not -path './.git/*' | wc -l)"
+          echo "Tamanho total (sem .git):"
+          du -sh --exclude=.git . || true
+          echo "::endgroup::"
+
+          echo "::group::Tamanho por pasta de topo"
+          du -sh --exclude=.git ./* 2>/dev/null | sort -rh || true
+          echo "::endgroup::"
+
+          echo "::group::10 maiores ficheiros"
+          find . -type f -not -path './.git/*' -printf '%s\t%p\n' \
+            | sort -rn | head -10 \
+            | awk '{ printf "%.1f MB\t%s\n", $1/1048576, $2 }'
+          echo "::endgroup::"
+
+          echo "::group::Ficheiros > 100 MB (limite por ficheiro do Pages)"
+          find . -type f -size +100M -not -path './.git/*' || echo "nenhum"
+          echo "::endgroup::"
+
+          echo "::group::PROBLEMÁTICO: nomes com espaços ou não-ASCII"
+          # Estes nomes (acentos, espaços) são um gativo conhecido de falhas no sync
+          find . -type f -not -path './.git/*' \
+            | grep -P '[^\x00-\x7F]| ' || echo "nenhum (bom sinal)"
+          echo "::endgroup::"
+
+          echo "::group::Symlinks (partem o sync do Pages)"
+          find . -type l -not -path './.git/*' || echo "nenhum"
+          echo "::endgroup::"
+
+          echo "::group::Lixo (.DS_Store / Thumbs.db)"
+          find . \( -name '.DS_Store' -o -name 'Thumbs.db' \) -not -path './.git/*' || echo "nenhum"
+          echo "::endgroup::"
+
+      # Remove lixo do macOS do artifact (não parte a build; só o limpa).
+      # Comenta este step se quiseres publicar exatamente o que está no repo.
+      - name: Limpar .DS_Store / Thumbs.db do artifact
+        run: |
+          find . \( -name '.DS_Store' -o -name 'Thumbs.db' \) \
+            -not -path './.git/*' -print -delete || true
+
+      # -------------------------------------------------------------------
+      # Criar o artifact do Pages (empacota a raiz do repo → artifact.tar)
+      # -------------------------------------------------------------------
+      - name: Upload do artifact do Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      # -------------------------------------------------------------------
+      # DEBUG 2: inspecionar o tar gerado (o que REALMENTE vai para o deploy)
+      # -------------------------------------------------------------------
+      - name: Inspecionar o artifact.tar gerado
+        run: |
+          TAR="$RUNNER_TEMP/artifact.tar"
+          echo "::group::Metadados do artifact"
+          ls -lh "$TAR" || { echo "artifact.tar não encontrado"; exit 0; }
+          echo "Nº de entradas no tar: $(tar -tf "$TAR" | wc -l)"
+          echo "::endgroup::"
+
+          echo "::group::Entradas do tar com nomes suspeitos (espaços/acentos)"
+          tar -tf "$TAR" | grep -P '[^\x00-\x7F]| ' || echo "nenhuma"
+          echo "::endgroup::"
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      ACTIONS_STEP_DEBUG: true
+      ACTIONS_RUNNER_DEBUG: true
+    steps:
+      - name: Deploy para o GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
+        with:
+          # Dá mais margem ao sync antes de reportar "failed" (default 600s).
+          timeout: 900000
+          # Nº de tentativas de report de erro (mais visibilidade em falhas transitórias).
+          error_count: 10

@@ -796,7 +796,7 @@ main > section{
   transform:translateX(-50%); z-index:-1;
   background:
     linear-gradient(180deg, rgba(9,12,10,.85) 0%, rgba(9,12,10,.55) 45%, rgba(9,12,10,.88) 100%),
-    var(--bg-alt-2) url("assets/images/FUNDO CONCERTS.png") no-repeat right 25% / cover;
+    var(--bg-alt-2) url("assets/images/fundo-concerts.png") no-repeat right 25% / cover;
 }
 
 /* Discreet fixed dot-nav for jumping between concerts — visible only while

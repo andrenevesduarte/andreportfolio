@@ -35,21 +35,21 @@ document.addEventListener('DOMContentLoaded', () => {
      Ordered: "STAR n" files first (by n), then the rest.
   --------------------------------------------------------------------- */
   const GALLERY_ITEMS = [
-    { src: 'assets/images/gallery/STAR 1 IMG_3361.jpg', type: 'image', alt: 'IMG 3361' },
-    { src: 'assets/images/gallery/STAR 3 IMG_3176.jpg', type: 'image', alt: 'IMG 3176' },
-    { src: 'assets/images/gallery/STAR 4 IMG_3344.jpg', type: 'image', alt: 'IMG 3344' },
-    { src: 'assets/images/gallery/STAR 5IMG_8230.jpg', type: 'image', alt: 'IMG 8230' },
-    { src: 'assets/images/gallery/STAR 5IMG_0820.jpg', type: 'image', alt: 'IMG 0820' },
-    { src: 'assets/images/gallery/STAR 6IMG_3341.jpg', type: 'image', alt: 'IMG 3341' },
+    { src: 'assets/images/gallery/star-1-img-3361.jpg', type: 'image', alt: 'IMG 3361' },
+    { src: 'assets/images/gallery/star-3-img-3176.jpg', type: 'image', alt: 'IMG 3176' },
+    { src: 'assets/images/gallery/star-4-img-3344.jpg', type: 'image', alt: 'IMG 3344' },
+    { src: 'assets/images/gallery/star-5-img-8230.jpg', type: 'image', alt: 'IMG 8230' },
+    { src: 'assets/images/gallery/star-5-img-0820.jpg', type: 'image', alt: 'IMG 0820' },
+    { src: 'assets/images/gallery/star-6-img-3341.jpg', type: 'image', alt: 'IMG 3341' },
     { src: 'assets/images/gallery/IMG_8384.jpg', type: 'image', alt: 'IMG 8384' },
-    { src: 'assets/images/gallery/STAR 7IMG_3155.mp4', type: 'video', alt: 'IMG 3155', poster: 'assets/images/gallery/STAR 7IMG_3155-poster.jpg' },
+    { src: 'assets/images/gallery/star-7-img-3155.mp4', type: 'video', alt: 'IMG 3155', poster: 'assets/images/gallery/star-7-img-3155-poster.jpg' },
     { src: 'assets/images/gallery/IMG_3005.jpg', type: 'image', alt: 'IMG 3005' },
     { src: 'assets/images/gallery/IMG_1360.jpg', type: 'image', alt: 'IMG 1360' },
     { src: 'assets/images/gallery/IMG_1575.jpg', type: 'image', alt: 'IMG 1575' },
     { src: 'assets/images/gallery/IMG_8383.jpg', type: 'image', alt: 'IMG 8383' },
     { src: 'assets/images/gallery/IMG_2247.jpg', type: 'image', alt: 'IMG 2247' },
     { src: 'assets/images/gallery/IMG_7392.jpg', type: 'image', alt: 'IMG 7392' },
-    { src: 'assets/images/gallery/STAR 8IMG_3418.mp4', type: 'video', alt: 'IMG 3418', poster: 'assets/images/gallery/STAR 8IMG_3418-poster.jpg' },
+    { src: 'assets/images/gallery/star-8-img-3418.mp4', type: 'video', alt: 'IMG 3418', poster: 'assets/images/gallery/star-8-img-3418-poster.jpg' },
     { src: 'assets/images/gallery/IMG_7634.jpg', type: 'image', alt: 'IMG 7634' },
     { src: 'assets/images/gallery/IMG_0817.jpg', type: 'image', alt: 'IMG 0817' },
     { src: 'assets/images/gallery/IMG_3072.jpg', type: 'image', alt: 'IMG 3072' },
@@ -658,21 +658,21 @@ document.addEventListener('DOMContentLoaded', () => {
      paths are relative to this file (typically assets/tracks/...).
   --------------------------------------------------------------------- */
   const PRODUCTION_TRACKS = [
-    { title: 'André Duarte Beatmaking', audio: 'assets/tracks/André Duarte_Beatmaking.mp3', cover: 'assets/icons/favicon-512.png' },
-    { title: 'André Duarte — Changes (Justin Bieber Cover)', audio: 'assets/tracks/André Duarte_Changes c:tudo.mp3', cover: 'assets/icons/favicon-512.png' },
-    { title: 'André Duarte Projeto Sampling', audio: 'assets/tracks/André Duarte_ProjetoSampling.mp3', cover: 'assets/icons/favicon-512.png' },
-    { title: 'André Duarte Trabalho Produção II', audio: 'assets/tracks/André Duarte_Trabalho_Produção II.mp3', cover: 'assets/icons/favicon-512.png' },
-    { title: 'André Duarte Trabalho Ableton Final', audio: 'assets/tracks/André Duarte_TrabalhoAbletonFinal.mp3', cover: 'assets/icons/favicon-512.png' },
-    { title: 'Ideia De Instrumental Com Bridge Grande', audio: 'assets/tracks/ideia de instrumental com bridge grande.mp3', cover: 'assets/icons/favicon-512.png' },
+    { title: 'André Duarte Beatmaking', audio: 'assets/tracks/andre-duarte-beatmaking.mp3', cover: 'assets/icons/favicon-512.png' },
+    { title: 'André Duarte — Changes (Justin Bieber Cover)', audio: 'assets/tracks/andre-duarte-changes.mp3', cover: 'assets/icons/favicon-512.png' },
+    { title: 'André Duarte Projeto Sampling', audio: 'assets/tracks/andre-duarte-projeto-sampling.mp3', cover: 'assets/icons/favicon-512.png' },
+    { title: 'André Duarte Trabalho Produção II', audio: 'assets/tracks/andre-duarte-trabalho-producao-ii.mp3', cover: 'assets/icons/favicon-512.png' },
+    { title: 'André Duarte Trabalho Ableton Final', audio: 'assets/tracks/andre-duarte-trabalho-ableton-final.mp3', cover: 'assets/icons/favicon-512.png' },
+    { title: 'Ideia De Instrumental Com Bridge Grande', audio: 'assets/tracks/ideia-de-instrumental-com-bridge-grande.mp3', cover: 'assets/icons/favicon-512.png' },
     { title: 'Mashup Daft Punk Duke Dumont Clean Bandit', audio: 'assets/tracks/Mashup_DaftPunk_DukeDumont_CleanBandit.mp3', cover: 'assets/icons/favicon-512.png' },
-    { title: 'Só Uma Vibe XD', audio: 'assets/tracks/só uma vibe xD.mp3', cover: 'assets/icons/favicon-512.png' },
+    { title: 'Só Uma Vibe XD', audio: 'assets/tracks/so-uma-vibe-xd.mp3', cover: 'assets/icons/favicon-512.png' },
   ];
 
   const MIXES_TRACKS = [
-    { title: 'André Duarte — 12 to 12 (Mix & Master)', audio: 'assets/tracks/mixes/André Duarte_12 to 12_MIX & MASTER.mp3', cover: 'assets/icons/favicon-512.png' },
-    { title: 'André Duarte — Pomadinha (AI Song Mix)', audio: 'assets/tracks/mixes/André Duarte_MIX_Pomadinha - AI SONG.mp3', cover: 'assets/icons/favicon-512.png' },
-    { title: 'Contramão (Protótipo)', audio: 'assets/tracks/mixes/Contramão - Protótitpo_48KHz_24bit_v2.mp3', cover: 'assets/icons/favicon-512.png' },
-    { title: 'Whole Lotta Love (Cover)', audio: 'assets/tracks/mixes/Whole Lotta Love (cover) - Protótitpo_48KHz_24bit.mp3', cover: 'assets/icons/favicon-512.png' },
+    { title: 'André Duarte — 12 to 12 (Mix & Master)', audio: 'assets/tracks/mixes/andre-duarte-12-to-12-mix-master.mp3', cover: 'assets/icons/favicon-512.png' },
+    { title: 'André Duarte — Pomadinha (AI Song Mix)', audio: 'assets/tracks/mixes/andre-duarte-mix-pomadinha-ai-song.mp3', cover: 'assets/icons/favicon-512.png' },
+    { title: 'Contramão (Protótipo)', audio: 'assets/tracks/mixes/contramao-prototipo-48khz-24bit-v2.mp3', cover: 'assets/icons/favicon-512.png' },
+    { title: 'Whole Lotta Love (Cover)', audio: 'assets/tracks/mixes/whole-lotta-love-cover-prototipo-48khz-24bit.mp3', cover: 'assets/icons/favicon-512.png' },
   ];
 
   {
