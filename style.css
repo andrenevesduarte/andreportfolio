@@ -320,7 +320,7 @@ main > section{
   content:'';
   position:absolute; inset:0;
   background:
-    linear-gradient(180deg, rgba(8,6,14,.62) 0%, rgba(8,6,14,.32) 38%, rgba(8,6,14,.5) 72%, rgba(8,6,14,.8) 100%);
+    linear-gradient(180deg, rgba(8,6,14,.72) 0%, rgba(8,6,14,.5) 40%, rgba(8,6,14,.62) 72%, rgba(8,6,14,.88) 100%);
   z-index:1;
 }
 .hero-image img{ width:100%; height:100%; object-fit:cover; object-position:78% 25%; filter:grayscale(1) contrast(1.05); transition: transform 1.2s var(--ease), filter .45s var(--ease-soft); }
@@ -356,7 +356,8 @@ main > section{
 .hero-eyebrow{
   grid-column: 1 / 7;
   font-family:var(--font-mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase;
-  color:var(--dark-text-muted);
+  color:#c9c7cf;
+  text-shadow:0 1px 10px rgba(0,0,0,.45);
 }
 .hero-title{
   grid-column: 1 / 13;
@@ -365,6 +366,7 @@ main > section{
   font-size: clamp(56px, 11.5vw, 176px);
   line-height:.9; letter-spacing:-.01em;
   color:var(--dark-text);
+  text-shadow:0 2px 30px rgba(0,0,0,.4);
 }
 .hero-title .outline{
   -webkit-text-stroke: 1.5px var(--dark-accent);
@@ -372,14 +374,16 @@ main > section{
 }
 .hero-copy{
   grid-column: 1 / 6;
-  font-size:15px; color:var(--dark-text-muted); font-weight:300; line-height:1.7;
+  font-size:15px; color:#d7d5db; font-weight:400; line-height:1.7;
   margin-top: 4px;
   text-align: justify;
+  text-shadow:0 1px 12px rgba(0,0,0,.4);
 }
 .hero-meta{
   grid-column: 1 / 8;
-  font-family:var(--font-mono); font-size:11px; letter-spacing:.05em; color:var(--dark-text-muted);
+  font-family:var(--font-mono); font-size:11px; letter-spacing:.05em; color:#c3c1c9;
   display:flex; gap:10px; margin-top:20px;
+  text-shadow:0 1px 10px rgba(0,0,0,.45);
 }
 .hero-meta .dot{ color:var(--dark-line); }
 
@@ -437,31 +441,84 @@ main > section{
 .about-main > .section-label,
 .about-main > .section-title,
 .about-main > .about-body{ position:relative; z-index:1; }
+/* Two-page corridor: the text elements sit centered in the middle, photos fill
+   the sides behind/beside them. */
+.about-main > .section-label{ justify-content:center; }
+.about .section-title{ text-align:center; font-size: clamp(34px, 5vw, 56px); }
 
 .about-bleed{
   position:absolute;
   width: clamp(220px, 25vw, 400px);
-  object-fit:cover; object-position:center;
+  object-fit:contain; object-position:center;
   filter: grayscale(1) brightness(.48);
   transition: filter .6s var(--ease-soft);
   z-index:0;
   pointer-events:none;
   user-select:none;
 }
-.about-bleed.in-focus{ filter: grayscale(0) brightness(.68); }
+/* Kept fully grayscale even in focus (only brightens) so the Biography photos
+   stay black & white instead of colourising on scroll-in. */
+.about-bleed.in-focus{ filter: grayscale(1) brightness(.68); }
 
-.about-bleed-left, .about-bleed-accent{
-  left:50%;
-  -webkit-mask-image: linear-gradient(to right, black 35%, transparent 88%);
-  mask-image: linear-gradient(to right, black 35%, transparent 88%);
+.about-bleed-left, .about-bleed-accent{ left:50%; object-position:left center; }
+.about-bleed-right, .about-bleed-right-accent{ right:50%; object-position:right center; }
+
+/* Page 1 (top row): gentle inner-edge dissolve toward the text (shows most of
+   the photo), a soft top edge, and a fade at the bottom so it melts into the
+   larger row-2 photo below. */
+.about-bleed-accent{        /* guitarist, top-left */
+  top:0; height:70%; width: clamp(340px, 40vw, 640px); object-position: left top;
+  -webkit-mask-image:
+    linear-gradient(to right, black 55%, transparent 80%),
+    linear-gradient(to bottom, transparent 0%, black 10%),
+    linear-gradient(to bottom, black 58%, transparent 96%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, black 55%, transparent 80%),
+    linear-gradient(to bottom, transparent 0%, black 10%),
+    linear-gradient(to bottom, black 58%, transparent 96%);
+  mask-composite: intersect;
 }
-.about-bleed-left{ top:0; height:58%; }
-.about-bleed-accent{ bottom:0; height:calc(42% - 14px); }
-.about-bleed-right{
-  right:50%; top:0; height:100%;
-  -webkit-mask-image: linear-gradient(to left, black 35%, transparent 88%);
-  mask-image: linear-gradient(to left, black 35%, transparent 88%);
+.about-bleed-right-accent{  /* hockey, top-right */
+  top:0; height:58%;
+  -webkit-mask-image:
+    linear-gradient(to left, black 76%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, black 10%),
+    linear-gradient(to bottom, black 66%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to left, black 76%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, black 10%),
+    linear-gradient(to bottom, black 66%, transparent 100%);
+  mask-composite: intersect;
 }
+
+/* Page 2 (bottom row): larger + wider, anchored to the bottom so they fill the
+   rest of the section, with a soft top edge to melt from row 1. */
+.about-bleed-left{          /* childhood, bottom-left */
+  bottom:0; height:74%; width: clamp(340px, 40vw, 640px); object-position: left bottom;
+  -webkit-mask-image:
+    linear-gradient(to right, black 76%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, black 24%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, black 76%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, black 24%);
+  mask-composite: intersect;
+}
+.about-bleed-right{         /* studio, bottom-right — same width as the hockey
+   above so its inner fade-out ends at the exact same horizontal position. */
+  bottom:0; height:64%; width: clamp(220px, 25vw, 400px); object-position: right bottom;
+  -webkit-mask-image:
+    linear-gradient(to left, black 76%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, black 24%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to left, black 76%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, black 24%);
+  mask-composite: intersect;
+}
+
 /* The shared [data-reveal] rule (style.css, reveal utility) also sets
    `transform`, for its own fade-up slide — which would fight with the
    translateX bleed offset above (same property, and depending on
@@ -473,20 +530,21 @@ main > section{
 .about-bleed-left[data-reveal].is-visible, .about-bleed-accent[data-reveal].is-visible{
   transform: translateX(-50vw);
 }
-.about-bleed-right[data-reveal], .about-bleed-right[data-reveal].is-visible{
+.about-bleed-right[data-reveal], .about-bleed-right[data-reveal].is-visible,
+.about-bleed-right-accent[data-reveal], .about-bleed-right-accent[data-reveal].is-visible{
   transform: translateX(50vw);
 }
 
 .about-body{
-  columns: 2; column-gap: var(--gutter);
+  columns: 1;
+  max-width: 500px; margin: 0 auto clamp(50px,6vw,90px);
   padding-bottom: clamp(40px,5vw,70px);
   border-bottom:1px solid var(--line);
-  margin-bottom: clamp(50px,6vw,90px);
 }
 .about-bio{
-  font-size:16px; color:var(--grey-1); line-height:1.85; font-weight:300;
+  font-size:16px; color:#c3cbc5; line-height:1.85; font-weight:400;
   margin-bottom:1.4em; break-inside:avoid;
-  text-align: justify;
+  text-align: left;
 }
 .about-bio:last-child{ margin-bottom:0; }
 .about-bio strong{ color:var(--white); font-weight:500; }
@@ -496,14 +554,24 @@ main > section{
    the same resting/in-focus grayscale+brightness pairing — rather than the
    boxed strip-with-caption look this used to have. Position/size in the
    page flow (full-width banner, same margin) is untouched. */
+.about-studio-wrap{ position:relative; margin-bottom: clamp(70px,9vw,130px); }
 .about-studio-strip{
-  position:relative; margin-bottom: clamp(70px,9vw,130px);
+  position:relative;
   aspect-ratio: 16/6.2; overflow:hidden;
   -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%);
   mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%);
 }
 .about-studio-strip img{ width:100%; height:100%; object-fit:cover; object-position:center 40%; filter:grayscale(1) brightness(.48); transition: filter .6s var(--ease-soft); }
-.about-studio-strip.in-focus img{ filter:grayscale(0) brightness(.68); }
+.about-studio-strip.in-focus img{ filter:grayscale(1) brightness(.68); }
+/* Caption as a small tag in the bottom-right corner of the home-studio image
+   (same mono-badge language as .hero-image-tag). Sibling of the masked strip so
+   the strip's top/bottom fade doesn't dissolve it. */
+.about-studio-caption{
+  position:absolute; right:16px; bottom:13%; z-index:2;
+  font-family:var(--font-mono); font-size:10px; letter-spacing:.08em;
+  color:var(--dark-text);
+  background:rgba(10,10,10,.55); padding:5px 9px; backdrop-filter:blur(2px);
+}
 
 /* Not enough width to keep the bled photos clear of the (now full-width)
    text column without hurting legibility — hide them below this point
@@ -526,11 +594,22 @@ main > section{
    literal top. Trims the .section-label's nav-clearance padding well
    below its full default clamp(90,12vw,140) so Mixes' scrollbar clears
    the viewport bottom too. */
-.projects{ scroll-margin-top: calc(clamp(40px, 5vw, 60px) - clamp(90px, 12vw, 140px)); }
+/* Nav-jump landing for #projects. The bigger negative offset lands the scroll
+   deeper into the section, so both the Production and Mixes carousels rise well
+   up the screen (label + title sit above the fold). Bump the second clamp to
+   lift them more, shrink it to lift them less — internal spacing is untouched. */
+.projects{ scroll-margin-top: calc(clamp(40px, 5vw, 60px) - clamp(114px, 14.5vw, 186px)); }
 /* Trims the space below the "03 PROJECTS" label only (not its own
    top position) so the title/Production/Mixes below it shift up slightly
    without moving the label itself. */
-.projects .section-label{ margin-bottom: calc(clamp(30px, 5vw, 56px) - 24px); }
+/* Nudge ONLY the top-level "03 Projects" label down, via position offset so it
+   doesn't push the title or carousels. The `>` (direct child) is essential:
+   without it this also hit the small "— Production" / "— Mixes" labels inside
+   the carousels and shoved them out of view. */
+.projects > .section-label{ margin-bottom: calc(clamp(30px, 5vw, 56px) - 24px); position: relative; top: 58px; }
+/* Slightly smaller gap below the PROJECTS title (default is clamp(40px,6vw,90px))
+   so both carousels rise a touch — title position itself is unchanged. */
+.projects .section-title{ margin-bottom: clamp(16px, 3vw, 46px); }
 
 .project-list{ padding-bottom: clamp(70px,9vw,130px); }
 
@@ -576,7 +655,11 @@ main > section{
    TRACKS SHOWCASE (horizontal audio carousel)
    ========================================================================== */
 .tracks-showcase{ padding-bottom: clamp(70px,9vw,130px); }
-.tracks-showcase:first-of-type{ padding-bottom: clamp(24px,3vw,40px); }
+/* Production is the 2nd div in the section (after .section-label), so
+   :first-of-type never matched it — the gap below it is what pushed Mixes far
+   down. Target it correctly (Mixes is :last-of-type) and shrink the gap so the
+   Mixes carousel + its scrollbar sit right under Production. */
+.tracks-showcase:not(:last-of-type){ padding-bottom: clamp(10px,1.4vw,20px); }
 
 .tracks-showcase-head{
   display:flex; align-items:center; justify-content:flex-start;

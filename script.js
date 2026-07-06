@@ -1029,13 +1029,22 @@ document.addEventListener('DOMContentLoaded', () => {
         tracksScroll.scrollLeft += diff * 0.18;
         wheelRAF = requestAnimationFrame(easeWheelScroll);
       }
+      /* Drop any in-flight easing and let the browser take over natively.
+         Without this, a leftover wheelTarget would keep easing toward a stale
+         position and visibly fight a trackpad's own horizontal scroll. */
+      function releaseWheel() {
+        wheelTarget = null;
+        if (wheelRAF) { cancelAnimationFrame(wheelRAF); wheelRAF = null; }
+      }
       tracksScroll.addEventListener('wheel', (e) => {
-        if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+        // Horizontal-intent gesture (trackpad): hand off to native scrolling.
+        if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) { releaseWheel(); return; }
         const max = tracksScroll.scrollWidth - tracksScroll.clientWidth;
         const current = wheelTarget != null ? wheelTarget : tracksScroll.scrollLeft;
         const atStart = current <= 0;
         const atEnd = current >= max - 1;
-        if ((e.deltaY < 0 && atStart) || (e.deltaY > 0 && atEnd)) return;
+        // At an edge: release so the page can scroll vertically as normal.
+        if ((e.deltaY < 0 && atStart) || (e.deltaY > 0 && atEnd)) { releaseWheel(); return; }
         wheelTarget = Math.min(max, Math.max(0, current + e.deltaY));
         e.preventDefault();
         if (!wheelRAF) wheelRAF = requestAnimationFrame(easeWheelScroll);
@@ -1044,30 +1053,51 @@ document.addEventListener('DOMContentLoaded', () => {
       /* Arrows + "more content" overflow state + scroll-position indicator */
       const progressThumb = document.getElementById(progressThumbId);
 
+      /* One arrow click advances by exactly one card + the real CSS gap, so
+         cards always land flush instead of stopping half-cut. The gap is read
+         from the computed style (it's a clamp()) rather than hardcoded. */
       function cardStep() {
         const card = tracksScroll.querySelector('.track-card');
-        return card ? card.getBoundingClientRect().width + 24 : 200;
+        if (!card) return 200;
+        const gap = parseFloat(getComputedStyle(tracksScroll).columnGap) || 24;
+        return card.getBoundingClientRect().width + gap;
+      }
+
+      /* Geometry (scrollWidth/clientWidth) only changes on resize, not while
+         scrolling — so measure it once here and on resize instead of on every
+         scroll event. Reading layout inside the scroll handler was forcing a
+         reflow per tick, which is what made the scroll feel jittery. */
+      let geom = { scrollW: 0, clientW: 0, max: 0, hasOverflow: false };
+      function measure() {
+        geom.scrollW = tracksScroll.scrollWidth;
+        geom.clientW = tracksScroll.clientWidth;
+        geom.max = Math.max(0, geom.scrollW - geom.clientW);
+        geom.hasOverflow = geom.scrollW > geom.clientW + 1;
+        showcase.classList.toggle('no-overflow', !geom.hasOverflow);
       }
       function updateArrows() {
-        const max = tracksScroll.scrollWidth - tracksScroll.clientWidth - 1;
-        const hasOverflow = tracksScroll.scrollWidth > tracksScroll.clientWidth;
-        showcase.classList.toggle('no-overflow', !hasOverflow);
-        prevBtn.disabled = tracksScroll.scrollLeft <= 0;
-        nextBtn.disabled = tracksScroll.scrollLeft >= max;
-
-        if (progressThumb && hasOverflow) {
-          const thumbPct = Math.min(100, (tracksScroll.clientWidth / tracksScroll.scrollWidth) * 100);
-          const range = tracksScroll.scrollWidth - tracksScroll.clientWidth;
-          const posPct = range > 0 ? (tracksScroll.scrollLeft / range) * (100 - thumbPct) : 0;
+        const left = tracksScroll.scrollLeft;
+        prevBtn.disabled = left <= 0;
+        nextBtn.disabled = left >= geom.max - 1;
+        if (progressThumb && geom.hasOverflow && geom.scrollW > 0) {
+          const thumbPct = Math.min(100, (geom.clientW / geom.scrollW) * 100);
+          const posPct = geom.max > 0 ? (left / geom.max) * (100 - thumbPct) : 0;
           progressThumb.style.width = thumbPct + '%';
           progressThumb.style.left = posPct + '%';
         }
       }
+      /* Coalesce scroll events to one update per frame. */
+      let arrowsRAF = null;
+      function onScroll() {
+        if (arrowsRAF) return;
+        arrowsRAF = requestAnimationFrame(() => { arrowsRAF = null; updateArrows(); });
+      }
       prevBtn.addEventListener('click', () => tracksScroll.scrollBy({ left: -cardStep(), behavior: 'smooth' }));
       nextBtn.addEventListener('click', () => tracksScroll.scrollBy({ left: cardStep(), behavior: 'smooth' }));
-      tracksScroll.addEventListener('scroll', updateArrows);
+      tracksScroll.addEventListener('scroll', onScroll);
       tracksScroll.addEventListener('scroll', hideTrackTooltip);
-      window.addEventListener('resize', updateArrows);
+      window.addEventListener('resize', () => { measure(); updateArrows(); });
+      measure();
       updateArrows();
     }
 
