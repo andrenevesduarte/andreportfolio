@@ -203,11 +203,18 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    nav-links flex layout/spacing at all. */
 .nav-links .has-submenu{ position:relative; }
 .nav-submenu{
-  position:absolute; top:100%; left:0; padding-top:16px;
+  position:absolute; top:100%; left:0; margin-top:16px; padding:16px 20px;
   display:flex; flex-direction:column; gap:12px;
+  background:rgba(12,12,12,.92);
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.08); border-radius:10px;
+  box-shadow:0 16px 40px rgba(0,0,0,.5);
   opacity:0; visibility:hidden; transform:translateY(-6px);
   transition: opacity .3s var(--ease), transform .3s var(--ease), visibility .3s;
   pointer-events:none;
+}
+.nav-submenu::before{
+  content:""; position:absolute; top:-16px; left:0; right:0; height:16px;
 }
 .nav-links .has-submenu:hover .nav-submenu,
 .nav-links .has-submenu:focus-within .nav-submenu{
@@ -241,7 +248,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
      indented) under "Concerts" instead of being hover-gated. */
   .nav-submenu{
     position:static; opacity:1; visibility:visible; transform:none; pointer-events:auto;
-    padding:14px 0 0 18px; gap:16px;
+    margin-top:0; padding:14px 0 0 18px; gap:16px;
+    background:none; backdrop-filter:none; -webkit-backdrop-filter:none;
+    border:none; border-radius:0; box-shadow:none;
   }
   .nav-submenu a{ font-size:15px; font-family:var(--font-mono); font-weight:400; font-style:normal; }
 }
