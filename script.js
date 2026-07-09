@@ -136,6 +136,57 @@ document.addEventListener('DOMContentLoaded', () => {
     concertTargets.forEach(row => sidenavActiveObserver.observe(row));
   }
 
+  /* ACID 9 badge — pin it beside the LIVE SHOWS title on first appearance,
+     then let it lift off into its wander (see .concerts-badge in the CSS).
+     Because it's position:fixed it then rides along with the viewport as you
+     scroll down through the other concerts. */
+  const badgeLink = document.querySelector('.concerts-badge-link');
+  const liveTitle = concertsSection && concertsSection.querySelector('.concerts-top .section-title');
+  if (badgeLink && liveTitle) {
+    let roamTimer = null;
+    // Park the badge right after the "LIVE SHOWS" text, vertically centred.
+    const pinBesideTitle = () => {
+      const r = liveTitle.getBoundingClientRect();
+      const size = badgeLink.offsetWidth || 90;
+      const left = Math.min(r.right + 16, window.innerWidth - size - 12);
+      const top = r.top + r.height / 2 - size / 2;
+      badgeLink.style.left = `${Math.max(12, left)}px`;
+      badgeLink.style.top = `${top}px`;
+    };
+    const badgeObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Re-pin only while it hasn't started roaming yet, so it appears
+          // exactly beside the title before drifting off.
+          if (!badgeLink.classList.contains('is-roaming')) pinBesideTitle();
+          badgeLink.classList.add('is-visible');
+          if (!roamTimer && !badgeLink.classList.contains('is-roaming')) {
+            roamTimer = setTimeout(() => badgeLink.classList.add('is-roaming'), 1400);
+          }
+        } else {
+          badgeLink.classList.remove('is-visible', 'is-roaming');
+          clearTimeout(roamTimer); roamTimer = null;
+        }
+      });
+    }, { threshold: 0.05 });
+    badgeObserver.observe(concertsSection);
+    // While it's still pinned (pre-roam), keep it glued to the title through
+    // scroll/resize; once roaming it drifts freely and rides the viewport.
+    let repinScheduled = false;
+    const repinIfPinned = () => {
+      if (repinScheduled) return;
+      repinScheduled = true;
+      requestAnimationFrame(() => {
+        repinScheduled = false;
+        if (badgeLink.classList.contains('is-visible') && !badgeLink.classList.contains('is-roaming')) {
+          pinBesideTitle();
+        }
+      });
+    };
+    window.addEventListener('scroll', repinIfPinned, { passive: true });
+    window.addEventListener('resize', repinIfPinned);
+  }
+
   /* ---------------------------------------------------------------------
      2. Scroll reveal (fade + rise) via IntersectionObserver
   --------------------------------------------------------------------- */

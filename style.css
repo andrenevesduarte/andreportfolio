@@ -855,6 +855,65 @@ main > section{
   transform:translateX(-50%); background:var(--bg-alt-2); z-index:-1;
 }
 
+/* ACID 9 badge — starts parked beside the LIVE SHOWS title, gently wandering.
+   It's absolutely positioned inside the concerts section and follows the
+   viewport DOWNWARD only (driven from script.js): as you head into the other
+   concerts it glides down to accompany you, but scrolling back up leaves it
+   behind — so it looks like it stayed down below. The `top` transition is what
+   makes that downward travel read as a smooth animation. */
+.concerts-badge-link{
+  position:absolute; top:0; left:0; z-index:45; line-height:0;
+  width:clamp(64px,9vw,110px);
+  opacity:0; visibility:hidden; pointer-events:none;
+  transition: opacity .6s var(--ease-soft, ease), visibility .6s,
+              top 1s var(--ease-soft, cubic-bezier(.4,0,.2,1)),
+              left .9s var(--ease-soft, ease);
+  will-change: transform, top;
+}
+.concerts-badge-link.is-visible{
+  opacity:1; visibility:visible; pointer-events:auto;
+}
+/* the gentle wandering drift, layered on top of the follow (added after a beat) */
+.concerts-badge-link.is-roaming{
+  animation: badge-wander 26s ease-in-out infinite;
+}
+.concerts-badge{
+  display:block; width:100%; height:auto;
+  aspect-ratio:1; object-fit:cover;
+  border-radius:50%;
+  user-select:none;
+  cursor:pointer;
+  /* subtle idle breathing */
+  animation: badge-float 3.6s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(255,255,255,.35);
+  transition: transform .35s var(--ease, ease), box-shadow .35s ease;
+}
+.concerts-badge-link:hover .concerts-badge,
+.concerts-badge-link:focus-visible .concerts-badge{
+  transform: scale(1.12);
+  box-shadow: 0 0 22px 4px rgba(255,255,255,.30);
+}
+/* pause the wandering while hovered/focused so it's easy to click */
+.concerts-badge-link:hover,
+.concerts-badge-link:focus-within{
+  animation-play-state: paused;
+}
+/* modest, mostly-horizontal drift so it doesn't fight the downward follow */
+@keyframes badge-wander{
+  0%   { transform: translate(  0vw,  0vh); }
+  25%  { transform: translate(  9vw,  4vh); }
+  50%  { transform: translate(  2vw,  9vh); }
+  75%  { transform: translate( -7vw,  3vh); }
+  100% { transform: translate(  0vw,  0vh); }
+}
+@keyframes badge-float{
+  0%,100%{ transform: translateY(0) scale(1); }
+  50%    { transform: translateY(-5px) scale(1.03); }
+}
+@media (prefers-reduced-motion: reduce){
+  .concerts-badge-link.is-roaming, .concerts-badge{ animation:none; }
+}
+
 /* .concerts-top's own ::before bleeds its photo backdrop upward, past its
    own box, into this label's space (see the negative top offset below) —
    since .concerts-top paints after this label in normal DOM order, that
