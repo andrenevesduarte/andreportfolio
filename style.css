@@ -1551,8 +1551,11 @@ body.has-mini-player{ padding-bottom:100px; transition: padding-bottom .5s var(-
   /* Keep the mobile bar's original (smaller) proportions — the height
      bump above is only for the macOS/Windows desktop browser case. */
   .mini-player-cover{ width:36px; height:36px; border-radius:8px; }
-  .mini-player-volume-toggle, .mini-player-toggle, .mini-player-close{ width:28px; height:28px; }
-  .mini-player-volume-toggle .volume-icon{ width:14px; height:14px; }
+  /* On phones the in-page volume control is hidden: the OS routes the
+     hardware volume buttons straight to media playback, so an in-page
+     slider is redundant (and ignored by iOS anyway). */
+  .mini-player-volume{ display:none; }
+  .mini-player-toggle, .mini-player-close{ width:28px; height:28px; }
   .mini-player-toggle .track-play-icon{ width:11px; height:11px; }
   .mini-player-close{ background-size:10px; }
 }
