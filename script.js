@@ -837,6 +837,12 @@ document.addEventListener('DOMContentLoaded', () => {
       activeTrackEntry = entry;
       entry.showProgress = true; // synchronous, so a drag started on this card gets instant feedback
       entry.audio.volume = masterVolume;
+      // iOS/WebKit (incl. Chrome on iPhone) rejects play() on an element that
+      // was created with preload='none' and never started loading — kick off
+      // the load inside this same tap gesture so playback is allowed. Only when
+      // nothing is loaded yet (readyState 0), so resuming a paused track keeps
+      // its position instead of restarting.
+      if (entry.audio.readyState === 0) entry.audio.load();
       entry.audio.play().then(() => {
         setPlayingUI(entry, true);
         openMiniPlayerFor(entry);
