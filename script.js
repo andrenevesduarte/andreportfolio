@@ -685,15 +685,27 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   lightboxClose.addEventListener('click', closeLightbox);
   lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+
+  // fade the current photo out, swap, then fade the next one in — avoids the abrupt jump
+  let gallerySwapTimer = null;
+  function navigateGallery(delta) {
+    if (galleryNavIndex < 0) return;
+    const nextIndex = (galleryNavIndex + delta + GALLERY_ITEMS.length) % GALLERY_ITEMS.length;
+    lightbox.classList.add('is-swapping');
+    clearTimeout(gallerySwapTimer);
+    gallerySwapTimer = setTimeout(() => {
+      openGalleryItem(nextIndex);
+      // double rAF so the new source paints before we fade it back in
+      requestAnimationFrame(() => requestAnimationFrame(() => lightbox.classList.remove('is-swapping')));
+    }, 220);
+  }
   lightboxPrev.addEventListener('click', (e) => {
     e.stopPropagation();
-    if (galleryNavIndex < 0) return;
-    openGalleryItem((galleryNavIndex - 1 + GALLERY_ITEMS.length) % GALLERY_ITEMS.length);
+    navigateGallery(-1);
   });
   lightboxNext.addEventListener('click', (e) => {
     e.stopPropagation();
-    if (galleryNavIndex < 0) return;
-    openGalleryItem((galleryNavIndex + 1) % GALLERY_ITEMS.length);
+    navigateGallery(1);
   });
 
   document.querySelectorAll('.g-item').forEach((item, i) => {

@@ -1376,9 +1376,11 @@ img[src^="assets/images/concert-03-2.jpg"]{ object-position: center 75%; }
 .lightbox.open{ opacity:1; visibility:visible; }
 .lightbox img, .lightbox video{
   max-width:min(90vw, 900px); max-height:78vh; object-fit:contain; filter:grayscale(1); display:block;
-  transform:scale(.92); transition: transform .4s var(--ease-soft);
+  transform:scale(.92); transition: transform .4s var(--ease-soft), opacity .28s var(--ease-soft);
 }
 .lightbox.open img, .lightbox.open video{ transform:scale(1); }
+/* brief crossfade while navigating between gallery photos */
+.lightbox.open.is-swapping img, .lightbox.open.is-swapping video{ opacity:0; }
 .lightbox video{ display:none; }
 .lightbox.is-video img{ display:none; }
 .lightbox.is-video video{ display:block; filter:none; }
@@ -1388,6 +1390,7 @@ img[src^="assets/images/concert-03-2.jpg"]{ object-position: center 75%; }
   position:absolute; top:24px; right:var(--gutter); z-index:2;
   width:40px; height:40px; border:1px solid var(--dark-line); border-radius:50%;
   background-image:url("assets/icons/close.svg"); background-repeat:no-repeat; background-position:center; background-size:14px;
+  filter:invert(1);
   transition: transform .3s var(--ease);
 }
 .lightbox-close:hover{ transform:rotate(90deg); }
