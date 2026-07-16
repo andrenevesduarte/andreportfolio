@@ -1181,6 +1181,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { album: 'Papillon', artist: 'Jony Driver', cover: 'assets/images/influences/11-papillon.jpeg' },
     { album: 'The Miseducation of Lauryn Hill', artist: 'Lauryn Hill', cover: 'assets/images/influences/12-miseducation-of-lauryn-hill.png' },
     { album: 'Discovery', artist: 'Daft Punk', cover: 'assets/images/influences/13-discovery.png' },
+    { album: 'Trench', artist: 'Twenty One Pilots', cover: 'assets/images/influences/14-trench.png' },
   ];
 
   {
